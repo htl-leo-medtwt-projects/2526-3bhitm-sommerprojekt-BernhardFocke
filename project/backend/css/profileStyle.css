@@ -1,0 +1,14 @@
+body {
+    background-color: darkblue;
+}
+
+#dropzone {
+    height: 20vh;
+    width: 20vw;
+    border-radius: 2vh;
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
