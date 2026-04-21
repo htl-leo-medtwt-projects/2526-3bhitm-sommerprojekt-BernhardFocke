@@ -1,3 +1,7 @@
+<?php
+    require "../mainScripts/profileMain.php";
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,11 +14,17 @@
 </head>
 
 <body>
-    <div id="dropzone">
-        <p>Drop your File here</p>
+    <div id="dropHead">
+        <div id="dropzone">
+            <p>Drop your File here</p>
+        </div>
     </div>
 
-    
+    <div id="songContainer">
+        <?php
+            showSongs();
+        ?>
+    </div>
 </body>
 
 </html>

@@ -11,7 +11,7 @@ dropzone.addEventListener("drop", (event) => {
 
     formData.append("fileToUpload", file);
 
-    fetch("../mainScripts/profileMain.php", {
+    fetch("../mainScripts/fileUpload.php", {
         method: "POST",
         body: formData
     });
