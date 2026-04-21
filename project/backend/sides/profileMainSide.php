@@ -14,6 +14,10 @@
 </head>
 
 <body>
+    <div id="userOverlav">
+        
+    </div>
+
     <div id="dropHead">
         <div id="dropzone">
             <p>Drop your File here</p>
