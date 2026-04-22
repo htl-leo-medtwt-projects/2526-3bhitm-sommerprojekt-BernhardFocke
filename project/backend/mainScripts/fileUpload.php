@@ -13,7 +13,7 @@ $imageFileType = pathinfo($target_file, PATHINFO_EXTENSION);
 $finfo = new finfo(FILEINFO_MIME_TYPE);
 $mimeType = $finfo->file($target_file);
 
-// Erlaubte MIME-Types für MP3 und WAV
+
 $allowedMimeTypes = [
     'audio/mpeg',  // Standard für MP3
     'audio/mp3',   // Alternative für MP3
