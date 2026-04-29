@@ -107,6 +107,15 @@ h2 {
     cursor: pointer;
 }
 
+#feetback {
+    height: 8vh;
+    width: 100%;
+    margin-bottom: 1vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /* Login Button */
 .btn-login {
     width: 100%;

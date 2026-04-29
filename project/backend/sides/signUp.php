@@ -1,5 +1,5 @@
 <?php
-require "../database.php";
+    session_start();
 ?>
 
 <!DOCTYPE html>
@@ -39,10 +39,18 @@ require "../database.php";
                 <label for="remember">Remember me</label>
             </div>
 
-            <button type="submit" class="btn-login">Login</button>
+            <div id="feetback">
+                <?php
+                    if (isset($_SESSION['feetback'])) {
+                        echo $_SESSION['feetback'];
+                    }
+                 ?>
+            </div>
+
+            <button type="submit" name="submit" class="btn-login">Login</button>
         </form>
 
-        <p class="footer-text">Already have a Account? <a href="./login.php">Signup</a></p>
+        <p class="footer-text">Already have a Account? <a href="./login.php">Login</a></p>
     </div>
 </body>
 
