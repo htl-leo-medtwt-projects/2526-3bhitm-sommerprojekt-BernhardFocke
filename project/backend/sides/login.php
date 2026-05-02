@@ -16,7 +16,7 @@
         <h2>Login</h2>
         <p class="subtitle">Welcome back please login to your account</p>
         
-        <form method="POST" action="./login.php">
+        <form method="POST" action="../mainScripts/loginMain.php">
             <div class="input-group">
                 <input type="text" placeholder="User Name" required name="username" id="username">
                 <i class="fa-regular fa-user"></i>
@@ -32,7 +32,7 @@
                 <label for="remember">Remember me</label>
             </div>
             
-            <button type="submit" class="btn-login">Login</button>
+            <button type="submit" name="submit" class="btn-login">Login</button>
         </form>
 
         <p class="footer-text">Don't have an account? <a href="./signUp.php">Signup</a></p>

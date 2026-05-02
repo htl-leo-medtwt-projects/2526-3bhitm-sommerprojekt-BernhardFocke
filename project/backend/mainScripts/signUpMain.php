@@ -26,8 +26,8 @@
 
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
-        $insertStatement = "INSERT INTO user (id, username, password, lastLogin)
-                            VALUES (0, '$username', '$passwordHash', NOW());";
+        $insertStatement = "INSERT INTO user (username, password, lastLogin)
+                            VALUES ('$username', '$passwordHash', NOW());";
 
         if ($_res = $conn->query($insertStatement)) {
             $_SESSION['feetback'] = "User $username has been added to the database.<br>Try to log in.";
