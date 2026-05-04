@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 require "../database.php";
 
@@ -63,8 +64,9 @@ if ($uploadOk == 0) {
         }
 
         $timestamp = date("Y-m-d H:i:s");
+        $userID = $_SESSION['user']['id'];
  
-        $insertStatement = "INSERT INTO songs (id, title, artist, createdAt, path) VALUES ('0', 'temp', 'temp', '$timestamp', '$target_file');";
+        $insertStatement = "INSERT INTO songs (id, title, artist, createdAt, path, user_id) VALUES ('0', 'temp', 'temp', '$timestamp', '$target_file', $userID);";
         if($_res = $conn->query($insertStatement)) {
             echo "<br>mp3 $target_file has been added to the database.";
         } else {

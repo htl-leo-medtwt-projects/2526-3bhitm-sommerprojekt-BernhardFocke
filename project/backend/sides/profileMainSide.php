@@ -1,9 +1,10 @@
 <?php
-    require "../mainScripts/profileMain.php";
+require "../mainScripts/profileMain.php";
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +16,15 @@
 
 <body>
     <div id="userOverlav">
-        
+        <div id="headline">
+            <?php
+            if (isset($_SESSION['login']) && $_SESSION['login'] == 1) {
+                $user = $_SESSION['user']['username'];
+                echo "<h1> Welcome {$user} </h1>";
+            }
+            ?>
+        </div>
+
     </div>
 
     <div id="dropHead">
@@ -32,5 +41,3 @@
 </body>
 
 </html>
-
-
