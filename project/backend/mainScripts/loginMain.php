@@ -35,11 +35,11 @@ if (isset($_POST["submit"])) {
 
             header("Location: ../sides/profileMainSide.php");
         } else {
-            echo "Passwort falsch.<br>";
+            $_SESSION['logFeetback'] = "Passwort falsch";
             include("../sides/login.php");
         }
     } else {
-        echo "Benutzer nicht gefunden.";
+        $_SESSION['logFeetback'] = "Benutzer nicht gefunden";
         include("../sides/login.php");
     }
 } else {
@@ -52,6 +52,5 @@ $conn->close();
 /* Is user already logged in ??? */
 if (is_array($_SESSION) && isset($_SESSION["login"]) && $_SESSION["login"] == 1) {
 
-    // Todo: Add program code for logged in user !!
     header("Location: ../sides/profileMainSide.php");
 }

@@ -9,7 +9,6 @@
         createUser();
     } else {
         include("../sides/signUp.php");
-        echo "<p>Wappla </p>";
     }
 
     function createUser()

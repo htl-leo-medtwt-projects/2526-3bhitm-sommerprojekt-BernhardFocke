@@ -31,6 +31,14 @@
                 <input type="checkbox" id="remember">
                 <label for="remember">Remember me</label>
             </div>
+
+            <div id="feetback">
+                <?php
+                    if(isset($_SESSION['logFeetback'])) {
+                        echo $_SESSION['logFeetback'];
+                    }
+                ?>
+            </div>
             
             <button type="submit" name="submit" class="btn-login">Login</button>
         </form>
