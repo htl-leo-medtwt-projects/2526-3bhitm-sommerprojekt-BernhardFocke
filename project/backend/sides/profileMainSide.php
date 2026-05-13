@@ -1,5 +1,5 @@
 <?php
-require "../mainScripts/profileMain.php";
+    require "../mainScripts/profileMain.php";
 ?>
 
 <!DOCTYPE html>
@@ -25,6 +25,12 @@ require "../mainScripts/profileMain.php";
             ?>
         </div>
 
+        <div id="profileBanner">
+            <?php
+                showUserProfile();
+             ?>
+        </div>
+        
     </div>
 
     <div id="dropHead">
