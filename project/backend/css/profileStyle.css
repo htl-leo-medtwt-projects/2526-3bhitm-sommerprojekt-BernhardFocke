@@ -190,3 +190,28 @@ body {
     justify-content: center;
     align-items: center;
 }
+
+#playButtonBox {
+    height: 20vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#playButton {
+    height: 8vh;
+    width: 20vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #a2d2ff;
+    color: black;
+    border-radius: 2vh;
+    user-select: none;
+    transition: all ease-in-out 0.3s;
+}
+
+#playButton:hover {
+    transform: scale(1.1);
+}

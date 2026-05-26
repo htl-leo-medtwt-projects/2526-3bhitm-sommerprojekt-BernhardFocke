@@ -35,7 +35,7 @@
 
     <div id="dropHead">
         <div id="dropzone">
-            <p>Drop your File here</p>
+            <p>Upload your Songs</p>
         </div>
     </div>
 
@@ -43,6 +43,12 @@
         <?php
             showSongs();
         ?>
+    </div>
+
+    <div id="playButtonBox" onclick="switchToMixer();">
+        <div id="playButton">
+            <p>Click here or on a Song to start listening</p>
+        </div>
     </div>
 </body>
 

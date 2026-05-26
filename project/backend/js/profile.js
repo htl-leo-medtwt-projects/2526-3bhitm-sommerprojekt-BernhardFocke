@@ -18,3 +18,11 @@ dropzone.addEventListener("drop", (event) => {
 
     dropzone.innerHTML = 'File is uploaded';
 });
+
+function switchToMixer(id) {
+    if(id != null) {
+        window.location.href = `./musicMixer.php?id=${id}`;
+    } else {
+        window.location.href = `./musicMixer.php`;
+    }
+}

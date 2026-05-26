@@ -1,3 +1,7 @@
+<?php
+    require "../mainScripts/musicMixerMain.php";
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -36,7 +40,9 @@
 
 
     <div id="mixer">
-        
+        <div id="mixerTable">
+
+        </div>
     </div>
 
 </body>

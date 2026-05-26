@@ -17,7 +17,7 @@ function showSongs()
     for ($i = 0; $i < sizeof($songs); $i++) {
         $time = date($songs[$i]['createdAt']);
 
-        echo "<div class='songItem'>
+        echo "<div class='songItem' onclick='switchToMixer({$songs[$i]['id']});'>
             <p> {$songs[$i]['title']} </p>
             <p> {$songs[$i]['artist']} </p>
             <p> {$time} </p>
