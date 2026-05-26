@@ -3,5 +3,8 @@
 
     if(!isset($_SESSION['login'])) {
         echo "Login first";
+        exit;
     }
+
+    
 ?>
