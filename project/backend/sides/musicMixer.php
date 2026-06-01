@@ -44,7 +44,7 @@ require "../mainScripts/musicMixerMain.php";
         <div id="mixerTable">
             <div id="table">
                 <div class="tableItems">
-                    <img src="../img/recordPng.png" alt="record">
+                    <img src="../img/recordPng.png" alt="record" onclick="playRndSong();">
                 </div>
 
                 <div class="tableItems">
@@ -76,7 +76,7 @@ require "../mainScripts/musicMixerMain.php";
         </div>
     </div>
 
-
+    
 
 </body>
 

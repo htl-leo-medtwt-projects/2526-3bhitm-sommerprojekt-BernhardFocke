@@ -3,6 +3,7 @@ const knob = document.getElementById('fader-knob');
 const output = document.getElementById('volume-output');
 let songs;
 let currentTrack;
+let isPlaying = false;
 
 let isDragging = false;
 
@@ -24,9 +25,21 @@ async function loadSongs() {
     }
 }
 
-function playSong(path) {
-    currentTrack = new Audio(path);
+function playSong(id) {
+    currentTrack = new Audio(songs[id].path);
     currentTrack.play();
+}
+
+function rndSongNum() {
+    return Math.round(Math.random(songs.lenght - 1));
+}
+
+function playRndSong() {
+    rndNumber = rndSongNum();
+
+    currentTrack = new Audio(songs[rndNumber].path);
+    currentTrack.play();
+    isPlaying = true;
 }
 
 // Kernfunktion zur Berechnung und Aktualisierung des Faders
