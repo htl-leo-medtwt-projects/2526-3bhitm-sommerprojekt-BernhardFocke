@@ -1,13 +1,38 @@
 const track = document.getElementById('fader-track');
 const knob = document.getElementById('fader-knob');
 const output = document.getElementById('volume-output');
+let songs;
+let currentTrack;
 
 let isDragging = false;
+
+loadSongs();
+
+async function loadSongs() {
+    try {
+        const response = await fetch('.././mainScripts/loadSongJSON.php');
+        if (!response.ok) throw new Error('Netzwerkfehler');
+
+        songs = await response.json();
+
+        songs.forEach(songs => {
+            console.log(songs.title);
+        });
+
+    } catch (error) {
+        console.error('Fehler:', error);
+    }
+}
+
+function playSong(path) {
+    currentTrack = new Audio(path);
+    currentTrack.play();
+}
 
 // Kernfunktion zur Berechnung und Aktualisierung des Faders
 function moveFader(clientY) {
     const trackRect = track.getBoundingClientRect();
-    
+
     // Relative Y-Position innerhalb der Spur berechnen
     let relativeY = clientY - trackRect.top;
 
@@ -23,6 +48,7 @@ function moveFader(clientY) {
     output.textContent = volumeValue.toFixed(2);
 
     // Tipp: Hier kannst du das Event für deine Audio-Elemente abfangen:
+
     // meinAudioElement.volume = volumeValue;
 }
 
