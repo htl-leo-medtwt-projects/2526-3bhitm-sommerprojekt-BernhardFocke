@@ -7,4 +7,18 @@
         echo "Login first";
         exit;
     }
+
+    $songs = [];
+
+
+    function loadSongs() {
+        global $conn;
+        global $songs;
+
+        $sql = "SELECT * FROM songs";
+
+        $result = $conn -> query($sql);
+
+        $songs = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
 ?>

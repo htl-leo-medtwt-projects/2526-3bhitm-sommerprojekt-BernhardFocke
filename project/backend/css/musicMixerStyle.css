@@ -186,3 +186,371 @@ nav {
     color: #00ffaa; /* Moderner Studio-Akzent für den aktiven Wert */
     font-weight: bold;
 }
+
+#songSliderSection {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto 3vh auto;
+  padding: 0 0 2vh 0;
+}
+ 
+/* ── Header ── */
+#sliderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0.5rem 1.2rem 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 1.6rem;
+}
+ 
+.sliderLabel {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+  color: #00ffaa;
+  text-transform: uppercase;
+}
+ 
+.trackCounter {
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.3);
+}
+ 
+/* ── Slider Wrapper (arrows + track) ── */
+#songSliderWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  position: relative;
+}
+ 
+/* ── Arrow Buttons ── */
+.sliderArrow {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
+}
+ 
+.sliderArrow:hover {
+  background: rgba(0,255,170,0.12);
+  border-color: #00ffaa;
+  color: #00ffaa;
+  transform: scale(1.1);
+}
+ 
+/* ── Slider Track ── */
+#songSlider {
+  display: flex;
+  gap: 1rem;
+  overflow: hidden;          /* arrows control scrolling via JS */
+  scroll-behavior: smooth;
+  flex: 1;
+  padding: 0.4rem 0.1rem 0.4rem 0.1rem;
+}
+ 
+/* ── Song Card ── */
+.songCard {
+  flex: 0 0 200px;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1);
+}
+ 
+.songCard:hover {
+  transform: translateY(-4px);
+}
+ 
+.songCard.active .songCardInner {
+  border-color: #00ffaa;
+  background: linear-gradient(145deg, #0d2a1f 0%, #0a1a1a 100%);
+  box-shadow: 0 0 0 1px #00ffaa33, 0 8px 30px rgba(0,255,170,0.15), inset 0 0 20px rgba(0,255,170,0.04);
+}
+ 
+.songCard.active .songWaveIcon span {
+  background: #00ffaa;
+  animation: waveBar 0.6s ease-in-out infinite alternate;
+}
+ 
+.songCard.active .songPlayIndicator svg {
+  fill: #00ffaa;
+}
+ 
+.songCardInner {
+  background: linear-gradient(145deg, #12202e 0%, #0b151e 100%);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 1.2rem 1rem 1rem 1rem;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+}
+ 
+.songCardInner:hover {
+  border-color: rgba(255,255,255,0.18);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+ 
+/* Glow overlay on hover */
+.songCardGlow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(0,255,170,0.06) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  border-radius: 12px;
+}
+ 
+.songCardInner:hover .songCardGlow {
+  opacity: 1;
+}
+ 
+/* Track number */
+.songIndex {
+  font-family: 'Courier New', monospace;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.1em;
+  position: absolute;
+  top: 0.8rem;
+  right: 0.9rem;
+}
+ 
+/* Mini wave icon */
+.songWaveIcon {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 22px;
+  margin-bottom: 0.5rem;
+}
+ 
+.songWaveIcon span {
+  display: block;
+  width: 3px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.25);
+  transition: background 0.3s, height 0.3s;
+}
+ 
+.songWaveIcon span:nth-child(1) { height: 8px; }
+.songWaveIcon span:nth-child(2) { height: 16px; }
+.songWaveIcon span:nth-child(3) { height: 12px; }
+.songWaveIcon span:nth-child(4) { height: 20px; }
+.songWaveIcon span:nth-child(5) { height: 9px; }
+ 
+@keyframes waveBar {
+  from { height: 4px; }
+  to   { height: 20px; }
+}
+ 
+.songCard.active .songWaveIcon span:nth-child(1) { animation-delay: 0s; }
+.songCard.active .songWaveIcon span:nth-child(2) { animation-delay: 0.1s; }
+.songCard.active .songWaveIcon span:nth-child(3) { animation-delay: 0.05s; }
+.songCard.active .songWaveIcon span:nth-child(4) { animation-delay: 0.15s; }
+.songCard.active .songWaveIcon span:nth-child(5) { animation-delay: 0.08s; }
+ 
+/* Song title & meta */
+.songCardInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+ 
+.songTitle {
+  margin: 0 0 0.2rem 0;
+  font-size: 0.85rem;
+  color: #e8e8e8;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+ 
+.songMeta {
+  margin: 0;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.35);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+ 
+/* Play icon on card */
+.songPlayIndicator {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.8rem;
+}
+ 
+.songPlayIndicator svg {
+  width: 12px;
+  height: 12px;
+  fill: rgba(255,255,255,0.12);
+  transition: fill 0.3s;
+}
+ 
+.songCardInner:hover .songPlayIndicator svg {
+  fill: rgba(255,255,255,0.5);
+}
+ 
+/* ── Now Playing Bar ── */
+#nowPlayingBar {
+  margin-top: 1.6rem;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(8px);
+}
+ 
+#npLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+ 
+/* Animated bars icon */
+#npAnimIcon {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 20px;
+}
+ 
+#npAnimIcon span {
+  display: block;
+  width: 3px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  height: 6px;
+  transition: background 0.3s;
+}
+ 
+#npAnimIcon.playing span {
+  background: #00ffaa;
+  animation: waveBar 0.5s ease-in-out infinite alternate;
+}
+ 
+#npAnimIcon.playing span:nth-child(1) { animation-delay: 0s; }
+#npAnimIcon.playing span:nth-child(2) { animation-delay: 0.12s; }
+#npAnimIcon.playing span:nth-child(3) { animation-delay: 0.06s; }
+#npAnimIcon.playing span:nth-child(4) { animation-delay: 0.18s; }
+ 
+#npInfo { display: flex; flex-direction: column; }
+ 
+#npTitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #e0e0e0;
+  font-weight: 600;
+}
+ 
+#npArtist {
+  margin: 0;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.35);
+  font-family: 'Courier New', monospace;
+}
+ 
+/* Play / Stop button */
+#npControls {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+ 
+#btnPlayStop, #btnRnd {
+  background: rgba(0,255,170,0.1);
+  border: 1px solid rgba(0,255,170,0.3);
+  color: #00ffaa;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+ 
+#btnPlayStop:hover, #btnRnd:hover {
+  background: rgba(0,255,170,0.22);
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(0,255,170,0.25);
+}
+ 
+#btnPlayStop:active, #btnRnd:active {
+  transform: scale(0.96);
+}
+ 
+#btnPlayStop svg, #btnRnd svg {
+  width: 18px;
+  height: 18px;
+  fill: #00ffaa;
+}
+ 
+#btnRnd {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.5);
+}
+ 
+#btnRnd svg { fill: rgba(255,255,255,0.5); }
+ 
+#btnRnd:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.3);
+  box-shadow: none;
+}
+ 
+/* ── Record spin animation ── */
+#recordWrapper {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+ 
+#recordImg {
+  height: auto;
+  width: 60%;
+  transition: filter 0.4s;
+}
+ 
+#recordWrapper.spinning #recordImg {
+  animation: spinRecord 4s linear infinite;
+  filter: drop-shadow(0 0 14px rgba(0,255,170,0.3));
+}
+ 
+@keyframes spinRecord {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
