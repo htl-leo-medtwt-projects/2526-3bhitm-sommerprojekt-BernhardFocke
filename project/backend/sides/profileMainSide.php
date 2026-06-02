@@ -37,6 +37,7 @@
         <div id="dropzone">
             <p>Upload your Songs</p>
         </div>
+    </form>
     </div>
 
     <div id="songContainer">

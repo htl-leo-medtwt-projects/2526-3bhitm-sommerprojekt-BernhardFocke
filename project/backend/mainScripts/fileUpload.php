@@ -22,7 +22,6 @@ $allowedMimeTypes = [
     'audio/x-wav'  // Alternative für WAV
 ];
 
-// Check if image file is a actual image or fake image
 if(!isset($_FILES["fileToUpload"])) {
     if(in_array($mimeType, $allowedMimeTypes)) {
         $uploadOk = 1;
@@ -38,7 +37,7 @@ if (file_exists($target_file)) {
 }
  
 // Check file size
-if ($_FILES["fileToUpload"]["size"] > 1000000) {
+if ($_FILES["fileToUpload"]["size"] > 10000000) {
     echo "Sorry, your file is too large.";
     $uploadOk = 0;
 }
@@ -63,10 +62,12 @@ if ($uploadOk == 0) {
             die("Connection failed: " . $conn->connect_error);
         }
 
+        $nameAndArtist = preg_split("/[_. ]/", $_FILES["fileToUpload"]["name"]);
+
         $timestamp = date("Y-m-d H:i:s");
         $userID = $_SESSION['user']['id'];
  
-        $insertStatement = "INSERT INTO songs (id, title, artist, createdAt, path, user_id) VALUES ('0', 'temp', 'temp', '$timestamp', '$target_file', $userID);";
+        $insertStatement = "INSERT INTO songs (title, artist, createdAt, path, user_id) VALUES ('$nameAndArtist[0]', '$nameAndArtist[1]', '$timestamp', '$target_file', $userID);";
         if($_res = $conn->query($insertStatement)) {
             echo "<br>mp3 $target_file has been added to the database.";
         } else {
