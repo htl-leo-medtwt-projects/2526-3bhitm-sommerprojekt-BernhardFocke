@@ -80,7 +80,7 @@ function loadSongs()
                     $title = htmlspecialchars($song['title']);
                     $artist = htmlspecialchars($song['artist'] ?? 'Unknown Artist');
 
-                    // Ersetzt das "if/endif" für die Spieldauer
+
                     $duration = !empty($song['duration']) ? ' &nbsp;·&nbsp; ' . htmlspecialchars($song['duration']) : '';
 
                     echo "<div class='songCard' data-index='{$i}' onclick='selectSong({$i})'>
@@ -149,24 +149,61 @@ function loadSongs()
                     </div>
                 </div>
                 <div class="tableItems">
-                    <div class="dj-fader-panel">
-                        <div class="fader-area">
-                            <div class="ticks-container left">
-                                <span></span><span></span><span></span><span></span><span></span>
-                                <span></span><span></span><span></span><span></span><span></span>
+                    <div class="tableItems">
+                        <div class="fader-panel-duo">
+
+                            <!-- ══ LAUTSTÄRKE-FADER ══ -->
+                            <div class="fader-col vol">
+                                <div class="fader-label">Volume</div>
+                                <div class="fader-area">
+                                    <div class="ticks left">
+                                        <span></span><span></span><span></span><span></span><span></span>
+                                        <span></span><span></span><span></span><span></span>
+                                    </div>
+                                    <div class="fader-track" id="fader-track">
+                                        <div class="fader-track-bg"></div>
+                                        <div class="fader-track-fill" id="vol-fill"></div>
+                                        <div class="fader-knob" id="fader-knob"></div>
+                                    </div>
+                                    <div class="ticks right">
+                                        <span></span><span></span><span></span><span></span><span></span>
+                                        <span></span><span></span><span></span><span></span>
+                                    </div>
+                                </div>
+                                <div class="fader-readout">
+                                    <span class="readout-label">VOL</span>
+                                    <span class="readout-value" id="volume-output">1.00</span>
+                                </div>
                             </div>
-                            <div class="fader-track" id="fader-track">
-                                <div class="fader-knob" id="fader-knob"></div>
+
+                            <!-- ══ GESCHWINDIGKEITS-FADER ══ -->
+                            <div class="fader-col spd">
+                                <div class="fader-label">Speed</div>
+                                <div class="fader-area">
+                                    <div class="ticks left">
+                                        <span></span><span></span><span></span><span></span><span></span>
+                                        <span></span><span></span><span></span><span></span>
+                                    </div>
+                                    <div class="fader-track" id="spd-track">
+                                        <div class="fader-track-bg"></div>
+                                        <div class="speed-center-line"></div>
+                                        <div class="fader-track-fill" id="spd-fill"></div>
+                                        <div class="fader-knob" id="spd-knob"></div>
+                                    </div>
+                                    <div class="ticks right">
+                                        <span></span><span></span><span></span><span></span><span></span>
+                                        <span></span><span></span><span></span><span></span>
+                                    </div>
+                                </div>
+                                <div class="fader-readout">
+                                    <span class="readout-label">RATE</span>
+                                    <span class="readout-value" id="spd-output">1.00×</span>
+                                </div>
                             </div>
-                            <div class="ticks-container right">
-                                <span></span><span></span><span></span><span></span><span></span>
-                                <span></span><span></span><span></span><span></span><span></span>
-                            </div>
-                        </div>
-                        <div class="value-display">
-                            VOLUME: <span id="volume-output">1.00</span>
+
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

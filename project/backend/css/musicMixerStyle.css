@@ -75,118 +75,6 @@ nav {
     width: 60%;
 }
 
-.dj-fader-panel {
-    width: 30%;
-    background-color: #080808;
-    padding: 40px 30px;
-    border-radius: 4px;
-    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.03), 0 15px 35px rgba(0, 0, 0, 0.7);
-    border: 1px solid #151515;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Container für den Regler-Bereich (Skala + Spur) */
-.fader-area {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    height: 300px; /* Höhe der Fader-Spur */
-    width: 120px;
-}
-
-/* Die vertikale Spur, in der sich der Regler bewegt */
-.fader-track {
-    position: relative;
-    width: 6px;
-    height: 100%;
-    background-color: #000000;
-    border-left: 1px solid #222;
-    border-right: 1px solid #222;
-    cursor: pointer;
-}
-
-/* Skalenstriche (Links und Rechts) */
-.ticks-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-    width: 35px;
-    position: absolute;
-}
-
-.ticks-container.left {
-    left: 10px;
-    align-items: flex-end;
-}
-
-.ticks-container.right {
-    right: 10px;
-    align-items: flex-start;
-}
-
-/* Einzelne Skalenstriche */
-.ticks-container span {
-    width: 16px;
-    height: 2px;
-    background-color: #e0e0e0;
-    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
-}
-
-/* Der Fader-Knopf (Cap) */
-.fader-knob {
-    position: absolute;
-    width: 52px;
-    height: 22px;
-    /* Metallischer, moderner Graustufen-Verlauf */
-    background: linear-gradient(to bottom, #444 0%, #292929 45%, #141414 50%, #3a3a3a 55%, #222 100%);
-    left: 50%;
-    /* Zentriert den Knopf auf der Achse */
-    transform: translate(-50%, -50%); 
-    border: 1px solid #111;
-    border-radius: 2px;
-    cursor: grab;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    /* Startposition oben (Wert 1.0) */
-    top: 0px; 
-    transition: all 0.1s;
-}
-
-.fader-knob:active {
-    cursor: grabbing;
-    background: linear-gradient(to bottom, #555 0%, #333 45%, #1a1a1a 50%, #444 55%, #2a2a2a 100%);
-}
-
-/* Die weiße Center-Linie auf dem Regler aus dem Bild */
-.fader-knob::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: #ffffff;
-    transform: translateY(-50%);
-    box-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
-}
-
-/* Wert-Anzeige unter dem Regler */
-.value-display {
-    margin-top: 25px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
-    color: #888;
-    letter-spacing: 1px;
-}
-
-#volume-output {
-    color: #00ffaa; /* Moderner Studio-Akzent für den aktiven Wert */
-    font-weight: bold;
-}
-
 #songSliderSection {
   width: 90%;
   max-width: 1200px;
@@ -553,4 +441,284 @@ nav {
 @keyframes spinRecord {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FADER REDESIGN  –  Ergänzungen für musicMixerStyle.css
+   Ersetze den bestehenden .dj-fader-panel Block komplett
+   durch diesen hier.
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  --col-accent-v: #00ffaa;   /* Volume  → Teal-Grün  */
+  --col-accent-s: #ff6b35;   /* Speed   → Amber-Rot  */
+  --col-panel:    #111c28;
+  --col-panel2:   #0c1620;
+  --col-border:   #1e2f42;
+  --col-muted:    #3a5068;
+  --track-w:      8px;
+  --knob-w:       60px;
+  --knob-h:       26px;
+}
+
+/* ── Wrapper: beide Fader nebeneinander ── */
+.fader-panel-duo {
+  display: flex;
+  gap: 0;
+  background: var(--col-panel);
+  border: 1px solid var(--col-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 30px 80px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ── Einzelne Fader-Spalte ── */
+.fader-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 28px 24px;
+  position: relative;
+  width: 160px;
+}
+
+.fader-col:first-child {
+  border-right: 1px solid var(--col-border);
+}
+
+/* Farbiger Top-Balken je Fader */
+.fader-col::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.fader-col.vol::before {
+  background: var(--col-accent-v);
+  box-shadow: 0 0 16px var(--col-accent-v);
+}
+.fader-col.spd::before {
+  background: var(--col-accent-s);
+  box-shadow: 0 0 16px var(--col-accent-s);
+}
+
+/* ── Beschriftung oben ── */
+.fader-label {
+  font-family: 'Courier New', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  margin-top: 6px;
+}
+.fader-col.vol .fader-label { color: var(--col-accent-v); }
+.fader-col.spd .fader-label { color: var(--col-accent-s); }
+
+/* ── Fader-Area (Spur + Ticks + Knopf) ── */
+.fader-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 280px;
+  width: 100%;
+}
+
+/* ── Skalenstriche ── */
+.ticks {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  position: absolute;
+}
+.ticks.left  { left: 12px;  align-items: flex-end; }
+.ticks.right { right: 12px; align-items: flex-start; }
+
+.ticks span {
+  display: block;
+  height: 1px;
+  background: var(--col-muted);
+}
+.ticks span:nth-child(odd)  { width: 10px; }
+.ticks span:nth-child(even) { width: 6px; opacity: 0.5; }
+
+/* Mittlerer Tick beim Speed-Fader hervorgehoben */
+.fader-col.spd .ticks span:nth-child(5) {
+  width: 14px;
+  background: var(--col-accent-s);
+  box-shadow: 0 0 6px var(--col-accent-s);
+  opacity: 1;
+}
+
+/* ── Spur (vertikale Nut) ── */
+.fader-track {
+  position: relative;
+  width: var(--track-w);
+  height: 100%;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.fader-track-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: var(--col-panel2);
+  border: 1px solid var(--col-border);
+}
+
+/* Gefüllter Bereich – Höhe per JS gesetzt */
+.fader-track-fill {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  border-radius: 4px;
+  opacity: 0.25;
+  pointer-events: none;
+  transition: height 0.05s;
+}
+.fader-col.vol .fader-track-fill { background: var(--col-accent-v); }
+.fader-col.spd .fader-track-fill { background: var(--col-accent-s); }
+
+/* Mittellinie Speed-Fader (zeigt 1× Referenz) */
+.speed-center-line {
+  position: absolute;
+  left: -22px; right: -22px;
+  height: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 1;
+}
+.speed-center-line::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--col-accent-s);
+  opacity: 0.2;
+}
+
+/* ── Knopf ── */
+.fader-knob {
+  position: absolute;
+  width: var(--knob-w);
+  height: var(--knob-h);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 4px;
+  cursor: grab;
+  user-select: none;
+  z-index: 2;
+  transition: box-shadow 0.15s;
+}
+.fader-knob:active { cursor: grabbing; }
+
+/* Volume-Knopf – teal Chrom */
+.fader-col.vol .fader-knob {
+  background: linear-gradient(180deg,
+    #1e3a30 0%, #0f2218 40%, #071510 50%, #0f2218 60%, #1a3028 100%
+  );
+  border: 1px solid #0d4030;
+  box-shadow:
+    0 3px 12px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(0,255,170,0.15),
+    0 0 0 1px rgba(0,255,170,0.1);
+}
+.fader-col.vol .fader-knob:hover {
+  box-shadow:
+    0 3px 12px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(0,255,170,0.25),
+    0 0 14px rgba(0,255,170,0.2),
+    0 0 0 1px rgba(0,255,170,0.25);
+}
+
+/* Speed-Knopf – amber Chrom */
+.fader-col.spd .fader-knob {
+  background: linear-gradient(180deg,
+    #3a2010 0%, #220f04 40%, #120800 50%, #220f04 60%, #2e1a08 100%
+  );
+  border: 1px solid #4a2a08;
+  box-shadow:
+    0 3px 12px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(255,107,53,0.15),
+    0 0 0 1px rgba(255,107,53,0.1);
+}
+.fader-col.spd .fader-knob:hover {
+  box-shadow:
+    0 3px 12px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(255,107,53,0.25),
+    0 0 14px rgba(255,107,53,0.2),
+    0 0 0 1px rgba(255,107,53,0.25);
+}
+
+/* Mittlere Leuchtlinie auf dem Knopf */
+.fader-knob::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 8px; right: 8px; height: 2px;
+  transform: translateY(-50%);
+  border-radius: 1px;
+}
+.fader-col.vol .fader-knob::after {
+  background: var(--col-accent-v);
+  box-shadow: 0 0 6px var(--col-accent-v);
+}
+.fader-col.spd .fader-knob::after {
+  background: var(--col-accent-s);
+  box-shadow: 0 0 6px var(--col-accent-s);
+}
+
+/* Grip-Muster auf Knopf */
+.fader-knob::before {
+  content: '';
+  position: absolute;
+  top: 4px; bottom: 4px; left: 0; right: 0;
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0px, transparent 3px,
+    rgba(255,255,255,0.04) 3px, rgba(255,255,255,0.04) 4px
+  );
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+/* ── Wert-Anzeige ── */
+.fader-readout {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.readout-label {
+  font-family: 'Courier New', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.25em;
+  color: var(--col-muted);
+  text-transform: uppercase;
+}
+.readout-value {
+  font-family: 'Courier New', monospace;
+  font-size: 1.05rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  min-width: 64px;
+  text-align: center;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+  transition: color 0.2s, border-color 0.2s;
+}
+.fader-col.vol .readout-value {
+  color: var(--col-accent-v);
+  border-color: rgba(0,255,170,0.2);
+  background: rgba(0,255,170,0.04);
+}
+.fader-col.spd .readout-value {
+  color: var(--col-accent-s);
+  border-color: rgba(255,107,53,0.2);
+  background: rgba(255,107,53,0.04);
 }

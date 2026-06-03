@@ -1,72 +1,68 @@
 /* ══════════════════════════════════════════════════════════════
-   musicMixerScript.js  –  vollständige neue Version
+   musicMixerScript.js  –  vollständige finale Version
+   Enthält: Song-Slider, Play/Stop, Random, Volume-Fader,
+            Speed-Fader (playbackRate, Mitte = 1.0×)
    ══════════════════════════════════════════════════════════════ */
 
-// ── DOM refs ──────────────────────────────────────────────────
-const track  = document.getElementById('fader-track');
-const knob   = document.getElementById('fader-knob');
-const output = document.getElementById('volume-output');
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+let songs            = [];
+let currentTrack     = null;
+let currentIndex     = null;
+let isPlaying        = false;
+let currentVolume    = 1.0;
+let currentRate      = 1.0;
+let sliderOffset     = 0;
+const CARD_WIDTH     = 216;   // px (card 200px + gap 16px)
 
-// ── State ─────────────────────────────────────────────────────
-let songs        = [];
-let currentTrack = null;   // Audio object
-let currentIndex = null;   // which song is loaded
-let isPlaying    = false;
-let isDragging   = false;
-let currentVolume = 1.0;   // 0.0 – 1.0
-let sliderOffset  = 0;     // how many cards we have scrolled
-const CARD_WIDTH  = 216;   // card width + gap in px (adjust if needed)
-
-// ── Boot ──────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════════════
 loadSongs();
 
-// ═════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 //  DATA
-// ═════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 async function loadSongs() {
   try {
     const response = await fetch('.././mainScripts/loadSongJSON.php');
-    if (!response.ok) throw new Error('Network error ' + response.status);
+    if (!response.ok) throw new Error('HTTP ' + response.status);
     songs = await response.json();
     console.log('[MusicMixer] Loaded', songs.length, 'songs');
-  } catch (error) {
-    console.error('[MusicMixer] Could not load songs:', error);
+  } catch (err) {
+    console.error('[MusicMixer] loadSongs failed:', err);
   }
 }
 
-// ═════════════════════════════════════════════════════════════
-//  SONG SELECTION  (called by PHP-rendered onclick)
-// ═════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+//  SONG SELECTION
+// ════════════════════════════════════════════════════════
 function selectSong(index) {
-  // Stop whatever is running
   stopSong();
-
   currentIndex = index;
   const song = songs[index];
   if (!song) return;
 
-  // Build Audio object
-  currentTrack = new Audio(song.path);
-  currentTrack.volume = currentVolume;
+  currentTrack              = new Audio(song.path);
+  currentTrack.volume       = currentVolume;
+  currentTrack.playbackRate = currentRate;
 
-  // Auto-play when card is clicked
   playSong();
-
-  // UI
   updateNowPlaying(song);
   highlightCard(index);
 }
 
-// ═════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 //  PLAYBACK
-// ═════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 function playSong() {
   if (!currentTrack) return;
-  currentTrack.play();
+  currentTrack.play().catch(e => console.warn('[MusicMixer] play():', e));
   isPlaying = true;
   updatePlayStopIcon();
-  document.getElementById('npAnimIcon').classList.add('playing');
-  document.getElementById('recordWrapper').classList.add('spinning');
+  document.getElementById('npAnimIcon')?.classList.add('playing');
+  document.getElementById('recordWrapper')?.classList.add('spinning');
 }
 
 function stopSong() {
@@ -76,139 +72,169 @@ function stopSong() {
   }
   isPlaying = false;
   updatePlayStopIcon();
-  document.getElementById('npAnimIcon').classList.remove('playing');
-  document.getElementById('recordWrapper').classList.remove('spinning');
+  document.getElementById('npAnimIcon')?.classList.remove('playing');
+  document.getElementById('recordWrapper')?.classList.remove('spinning');
 }
 
 function togglePlayStop() {
-  if (!currentTrack) {
-    // Nothing loaded → play random
+  if (!currentTrack && currentIndex === null) {
     playRndSong();
     return;
   }
-  if (isPlaying) {
-    stopSong();
-  } else {
-    playSong();
-  }
+  isPlaying ? stopSong() : playSong();
 }
 
-// ── Play a specific song by its songs[] index ─────────────────
-function playSongById(id) {
-  selectSong(id);
-}
-
-// ── Random song ───────────────────────────────────────────────
 function rndSongNum() {
-  if (!songs.length) return 0;
   return Math.floor(Math.random() * songs.length);
 }
 
 function playRndSong() {
   if (!songs.length) return;
-  const rnd = rndSongNum();
-  selectSong(rnd);
+  selectSong(rndSongNum());
 }
 
-// ═════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 //  UI HELPERS
-// ═════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 function updatePlayStopIcon() {
-  const iconPlay = document.getElementById('iconPlay');
-  const iconStop = document.getElementById('iconStop');
-  if (!iconPlay || !iconStop) return;
-  iconPlay.style.display = isPlaying ? 'none' : 'block';
-  iconStop.style.display = isPlaying ? 'block' : 'none';
+  const p = document.getElementById('iconPlay');
+  const s = document.getElementById('iconStop');
+  if (!p || !s) return;
+  p.style.display = isPlaying ? 'none'  : 'block';
+  s.style.display = isPlaying ? 'block' : 'none';
 }
 
 function updateNowPlaying(song) {
-  const titleEl  = document.getElementById('npTitle');
-  const artistEl = document.getElementById('npArtist');
-  if (titleEl)  titleEl.textContent  = song.title  || 'Unknown Title';
-  if (artistEl) artistEl.textContent = song.artist || '—';
+  const t = document.getElementById('npTitle');
+  const a = document.getElementById('npArtist');
+  if (t) t.textContent = song.title  || 'Unknown Title';
+  if (a) a.textContent = song.artist || '—';
 }
 
 function highlightCard(activeIndex) {
-  document.querySelectorAll('.songCard').forEach((card, i) => {
-    card.classList.toggle('active', i === activeIndex);
-  });
+  document.querySelectorAll('.songCard').forEach((c, i) =>
+    c.classList.toggle('active', i === activeIndex)
+  );
 }
 
-// ═════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 //  SLIDER NAVIGATION
-// ═════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 function slideRight() {
   const slider   = document.getElementById('songSlider');
   const maxScroll = slider.scrollWidth - slider.clientWidth;
-  sliderOffset = Math.min(sliderOffset + CARD_WIDTH, maxScroll);
+  sliderOffset   = Math.min(sliderOffset + CARD_WIDTH, maxScroll);
   slider.scrollTo({ left: sliderOffset, behavior: 'smooth' });
 }
 
 function slideLeft() {
   sliderOffset = Math.max(sliderOffset - CARD_WIDTH, 0);
-  const slider  = document.getElementById('songSlider');
-  slider.scrollTo({ left: sliderOffset, behavior: 'smooth' });
+  document.getElementById('songSlider')
+    .scrollTo({ left: sliderOffset, behavior: 'smooth' });
 }
 
-// ═════════════════════════════════════════════════════════════
-//  FADER / VOLUME
-// ═════════════════════════════════════════════════════════════
-function moveFader(clientY) {
-  const trackRect = track.getBoundingClientRect();
+// ════════════════════════════════════════════════════════
+//  GENERIC FADER FACTORY
+//  Handles both Volume and Speed fader with the same logic.
+// ════════════════════════════════════════════════════════
+function createFader({ trackId, knobId, fillId, outputId, min, max, startCenter, format, onChange }) {
+  const track  = document.getElementById(trackId);
+  const knob   = document.getElementById(knobId);
+  const fill   = fillId  ? document.getElementById(fillId)  : null;
+  const output = outputId ? document.getElementById(outputId) : null;
+  if (!track || !knob) return;
 
-  let relativeY = clientY - trackRect.top;
-  if (relativeY < 0)                relativeY = 0;
-  if (relativeY > trackRect.height) relativeY = trackRect.height;
+  let isDragging = false;
 
-  const volumeValue = 1 - (relativeY / trackRect.height);
-  currentVolume = volumeValue;
-
-  // Update knob position + display
-  knob.style.top = `${relativeY}px`;
-  output.textContent = volumeValue.toFixed(2);
-
-  // Apply to currently playing track
-  if (currentTrack) {
-    currentTrack.volume = currentVolume;
+  function getTrackHeight() {
+    return track.getBoundingClientRect().height;
   }
+
+  function valueToRelY(value) {
+    const h   = getTrackHeight();
+    const pct = 1 - ((value - min) / (max - min));   // invert: top = max
+    return pct * h;
+  }
+
+  function relYToValue(clientY) {
+    const rect = track.getBoundingClientRect();
+    let   rel  = clientY - rect.top;
+    rel = Math.max(0, Math.min(rect.height, rel));
+    return max - (rel / rect.height) * (max - min);
+  }
+
+  function applyValue(value) {
+    value = Math.max(min, Math.min(max, value));
+    const y = valueToRelY(value);
+
+    knob.style.top = `${y}px`;
+
+    if (fill) {
+      const pct = (value - min) / (max - min);
+      fill.style.height = `${pct * 100}%`;
+    }
+
+    if (output) output.textContent = format(value);
+    onChange(value);
+  }
+
+  function onMove(clientY) {
+    applyValue(relYToValue(clientY));
+  }
+
+  // Mouse
+  knob.addEventListener('mousedown',   e => { isDragging = true; e.preventDefault(); });
+  track.addEventListener('mousedown',  e => { isDragging = true; onMove(e.clientY); });
+  window.addEventListener('mousemove', e => { if (isDragging) onMove(e.clientY); });
+  window.addEventListener('mouseup',   ()  => { isDragging = false; });
+
+  // Touch
+  knob.addEventListener('touchstart',   e => { isDragging = true; e.preventDefault(); }, { passive: false });
+  window.addEventListener('touchmove',  e => { if (isDragging) onMove(e.touches[0].clientY); }, { passive: true });
+  window.addEventListener('touchend',   ()  => { isDragging = false; });
+
+  // Set initial position once the DOM is fully painted
+  window.addEventListener('load', () => {
+    const initVal = startCenter ? (min + max) / 2 : max;
+    applyValue(initVal);
+  });
 }
 
-// Drag events
-knob.addEventListener('mousedown', (e) => {
-  isDragging = true;
-  e.preventDefault();
+// ════════════════════════════════════════════════════════
+//  VOLUME FADER   (0.0 → 1.0,  starts at top = 1.0)
+//  IDs müssen mit dem HTML übereinstimmen:
+//    fader-track / fader-knob / vol-fill / volume-output
+// ════════════════════════════════════════════════════════
+createFader({
+  trackId:     'fader-track',
+  knobId:      'fader-knob',
+  fillId:      'vol-fill',
+  outputId:    'volume-output',
+  min:         0,
+  max:         1,
+  startCenter: false,               // startet oben (volle Lautstärke)
+  format:      v => v.toFixed(2),
+  onChange:    v => {
+    currentVolume = v;
+    if (currentTrack) currentTrack.volume = v;
+  }
 });
 
-track.addEventListener('mousedown', (e) => {
-  isDragging = true;
-  moveFader(e.clientY);
-});
-
-window.addEventListener('mousemove', (e) => {
-  if (!isDragging) return;
-  moveFader(e.clientY);
-});
-
-window.addEventListener('mouseup', () => {
-  isDragging = false;
-});
-
-// Touch support for fader
-knob.addEventListener('touchstart', (e) => {
-  isDragging = true;
-  e.preventDefault();
-}, { passive: false });
-
-window.addEventListener('touchmove', (e) => {
-  if (!isDragging) return;
-  moveFader(e.touches[0].clientY);
-}, { passive: true });
-
-window.addEventListener('touchend', () => {
-  isDragging = false;
-});
-
-// Initial fader position = top (volume 1.0)
-window.addEventListener('load', () => {
-  moveFader(track.getBoundingClientRect().top);
+// ════════════════════════════════════════════════════════
+//  SPEED FADER   (0.25× → 2.0×, startet in der Mitte = 1.0×)
+//  IDs: spd-track / spd-knob / spd-fill / spd-output
+// ════════════════════════════════════════════════════════
+createFader({
+  trackId:     'spd-track',
+  knobId:      'spd-knob',
+  fillId:      'spd-fill',
+  outputId:    'spd-output',
+  min:         0.25,
+  max:         2.0,
+  startCenter: true,               // Knopf startet in der Mitte (= 1.0×)
+  format:      v => v.toFixed(2) + '×',
+  onChange:    v => {
+    currentRate = v;
+    if (currentTrack) currentTrack.playbackRate = v;
+  }
 });
