@@ -48,6 +48,11 @@ nav {
     width: 40%;
 }
 
+a {
+  text-decoration: none;
+  color: white;
+}
+
 #mixer {
     height: 50vh;
     width: 100%;
@@ -443,15 +448,9 @@ nav {
   to   { transform: rotate(360deg); }
 }
 
-/* ══════════════════════════════════════════════════════════════
-   FADER REDESIGN  –  Ergänzungen für musicMixerStyle.css
-   Ersetze den bestehenden .dj-fader-panel Block komplett
-   durch diesen hier.
-   ══════════════════════════════════════════════════════════════ */
-
 :root {
   --col-accent-v: #00ffaa;   /* Volume  → Teal-Grün  */
-  --col-accent-s: #ff6b35;   /* Speed   → Amber-Rot  */
+  --col-accent-s: #8ecae6;   /* Speed   → Amber-Rot  */
   --col-panel:    #111c28;
   --col-panel2:   #0c1620;
   --col-border:   #1e2f42;
@@ -638,20 +637,21 @@ nav {
 /* Speed-Knopf – amber Chrom */
 .fader-col.spd .fader-knob {
   background: linear-gradient(180deg,
-    #3a2010 0%, #220f04 40%, #120800 50%, #220f04 60%, #2e1a08 100%
+    #1a3a4a 0%, #0d2233 40%, #071520 50%, #0d2233 60%, #162e3d 100%
   );
-  border: 1px solid #4a2a08;
+  border: 1px solid #2a5a72;
   box-shadow:
     0 3px 12px rgba(0,0,0,0.8),
-    inset 0 1px 0 rgba(255,107,53,0.15),
-    0 0 0 1px rgba(255,107,53,0.1);
+    inset 0 1px 0 rgba(142,202,230,0.15),
+    0 0 0 1px rgba(142,202,230,0.1);
 }
+ 
 .fader-col.spd .fader-knob:hover {
   box-shadow:
     0 3px 12px rgba(0,0,0,0.8),
-    inset 0 1px 0 rgba(255,107,53,0.25),
-    0 0 14px rgba(255,107,53,0.2),
-    0 0 0 1px rgba(255,107,53,0.25);
+    inset 0 1px 0 rgba(142,202,230,0.25),
+    0 0 14px rgba(142,202,230,0.2),
+    0 0 0 1px rgba(142,202,230,0.25);
 }
 
 /* Mittlere Leuchtlinie auf dem Knopf */
@@ -719,6 +719,6 @@ nav {
 }
 .fader-col.spd .readout-value {
   color: var(--col-accent-s);
-  border-color: rgba(255,107,53,0.2);
-  background: rgba(255,107,53,0.04);
+  border-color: #8ecae6aa;
+  background: rgba(16, 169, 189, 0.04);
 }

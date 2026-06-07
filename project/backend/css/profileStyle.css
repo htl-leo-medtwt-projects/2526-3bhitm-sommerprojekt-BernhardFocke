@@ -1,29 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
 @font-face {
     font-family: Kaulen;
     src: url(../../frontend/font/startpage/Koulen-Regular.ttf);
 }
 
-body {
-    background-color: #2f6690;
-    height: 100vh;
-    width: 100vw;
-    padding: 0;
-    margin: 0;
-    overflow-x: hidden;
-    font-family: Kaulen;
+/* ── Design Tokens ───────────────────────────────────────────── */
+:root {
+    --bg-base:       #080f1a;
+    --bg-surface:    #0d1b2a;
+    --bg-card:       #0f2235;
+    --bg-card-hover: #152d44;
+
+    --teal-bright:   #00e5c3;
+    --teal-mid:      #00b4a0;
+    --teal-muted:    #1a7a6e;
+    --blue-electric: #1db8ff;
+    --blue-mid:      #1a7fb5;
+    --blue-deep:     #0e4d78;
+
+    --text-primary:  #e8f4f8;
+    --text-secondary:#7fafc4;
+    --text-muted:    #3d6478;
+
+    --border-subtle: rgba(0, 229, 195, 0.12);
+    --border-glow:   rgba(0, 229, 195, 0.35);
+
+    --gradient-accent: linear-gradient(135deg, var(--teal-bright), var(--blue-electric));
+    --gradient-card:   linear-gradient(160deg, rgba(0,229,195,0.07) 0%, rgba(29,184,255,0.04) 100%);
+
+    --radius-sm:  0.6vw;
+    --radius-md:  1.2vw;
+    --radius-lg:  1.8vw;
+    --radius-xl:  2.5vw;
+
+    --shadow-glow-teal: 0 0 2vw rgba(0, 229, 195, 0.18), 0 0.3vh 1.5vw rgba(0,0,0,0.5);
+    --shadow-glow-blue: 0 0 2vw rgba(29, 184, 255, 0.18), 0 0.3vh 1.5vw rgba(0,0,0,0.5);
+    --shadow-card:      0 0.6vh 2.5vw rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset;
 }
 
+/* ── Reset & Base ────────────────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-base);
+    background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,180,160,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 90% 60%, rgba(29,184,255,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 30% at 10% 80%, rgba(0,229,195,0.05) 0%, transparent 60%);
+    min-height: 100vh;
+    width: 100vw;
+    padding: 0;
+    overflow-x: hidden;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
+    background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* Animated ambient orb */
+body::before {
+    content: '';
+    position: fixed;
+    top: -20vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70vw;
+    height: 40vh;
+    background: radial-gradient(ellipse, rgba(0,229,195,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: ambientPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes ambientPulse {
+    from { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
+    to   { opacity: 1;   transform: translateX(-50%) scaleX(1.15); }
+}
+
+/* ── Headline / Welcome ──────────────────────────────────────── */
 #headline {
-    color: white;
-    font-size: 5vh;
+    position: relative;
+    z-index: 1;
+    color: var(--text-primary);
+    font-family: 'Syne', sans-serif;
+    font-size: 4vh;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 30vh;
+    height: 18vh;
     width: 100%;
+    text-shadow: 0 0 4vw rgba(0,229,195,0.3);
 }
 
+#headline h1 {
+    position: relative;
+}
+
+#headline h1::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5vh;
+    left: 0;
+    width: 100%;
+    height: 0.25vh;
+    background: var(--gradient-accent);
+    border-radius: 0.2vh;
+    animation: lineReveal 1s ease forwards;
+}
+
+@keyframes lineReveal {
+    from { width: 0; opacity: 0; }
+    to   { width: 100%; opacity: 1; }
+}
+
+/* ── Drop Zone ───────────────────────────────────────────────── */
 #dropHead {
+    position: relative;
+    z-index: 1;
     height: 20vh;
     width: 100%;
     display: flex;
@@ -32,167 +131,368 @@ body {
 }
 
 #dropzone {
-    height: 15vh; 
-    width: 40vw;
-    border: 2px dashed #81c3d7;
-    border-radius: 1.5rem;
-    background-color: rgba(0, 0, 0, 0.3); 
-    color: #f5f5f5;
-    transition: all 0.3s ease;
+    height: 13vh;
+    width: 42vw;
+    border: 0.15vw dashed var(--teal-muted);
+    border-radius: var(--radius-xl);
+    background: var(--gradient-card);
+    backdrop-filter: blur(1vw);
+    color: var(--text-secondary);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     cursor: pointer;
-    font-family: 'Segoe UI', sans-serif;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    display: flex;
+    gap: 1vh;
     justify-content: center;
     align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+#dropzone::before {
+    content: '↑';
+    font-size: 2.5vh;
+    font-weight: 700;
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+#dropzone p {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.4vh;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin: 0;
 }
 
 #dropzone:hover {
-    background-color: rgba(0, 0, 0, 0.5);
-    border-color: #ffffff;
-    transform: scale(1.02);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    background: rgba(0, 229, 195, 0.08);
+    border-color: var(--teal-bright);
+    border-style: solid;
+    transform: scale(1.03) translateY(-0.3vh);
+    box-shadow: var(--shadow-glow-teal);
+    color: var(--teal-bright);
 }
 
+#dropzone:hover p {
+    color: var(--teal-bright);
+}
+
+/* ── Song Container — Playlist Strip ────────────────────────── */
 #songContainer {
-    height: 35vh; 
+    position: relative;
+    z-index: 1;
     width: 100%;
-    padding: 20px;
-    display: flex;
-    gap: 20px;
-    overflow-x: auto;
-    overflow-y: hidden; 
-    scrollbar-width: thin;
-}
-
-.songItem {
-    flex: 0 0 180px; 
-    height: 250px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px); 
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 15px;
-    padding: 15px;
+    padding: 2vh 4vw;
     display: flex;
     flex-direction: column;
+    gap: 0;
+
+    /* Strip chrome */
+    background: linear-gradient(180deg,
+        rgba(0,229,195,0.03) 0%,
+        rgba(13,27,42,0.95) 6%,
+        rgba(13,27,42,0.95) 94%,
+        rgba(0,229,195,0.03) 100%);
+    border-top: 0.15vh solid var(--border-subtle);
+    border-bottom: 0.15vh solid var(--border-subtle);
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 45vh;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--teal-muted) transparent;
+}
+
+#songContainer::-webkit-scrollbar {
+    width: 0.3vw;
+}
+#songContainer::-webkit-scrollbar-track {
+    background: transparent;
+}
+#songContainer::-webkit-scrollbar-thumb {
+    background: var(--teal-muted);
+    border-radius: 0.3vw;
+}
+
+/* Strip header label */
+#songContainer::before {
+    content: 'YOUR PLAYLIST';
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2vh;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--teal-bright);
+    opacity: 0.7;
+    margin-bottom: 1.5vh;
+    padding-bottom: 1vh;
+    border-bottom: 0.1vh solid var(--border-subtle);
+    width: 100%;
+}
+
+/* ── Song Item — Playlist Row ────────────────────────────────── */
+.songItem {
+    width: 100%;
+    height: 8vh;
+    min-height: 5.5rem;
+    background: transparent;
+    border: none;
+    border-bottom: 0.1vh solid rgba(0,229,195,0.06);
+    border-radius: 0;
+    padding: 0 1.5vw;
+
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    color: white;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    gap: 2vw;
+
+    color: var(--text-primary);
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition:
+        background 0.22s ease,
+        border-color 0.22s ease;
+}
+
+/* Track number / play icon on hover — left gutter */
+.songItem::before {
+    content: "♪";
+    flex-shrink: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2vh;
+
+    width: 5.5vh;
+    height: 5.5vh;
+    background: linear-gradient(135deg, var(--blue-deep) 0%, var(--teal-muted) 50%, var(--blue-mid) 100%);
+    border-radius: 0.8vw;
+    box-shadow: 0 0.3vh 1.2vw rgba(0,0,0,0.35),
+                0 0 0 0.1vw rgba(0,229,195,0.1) inset;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+/* Teal left-border accent on hover */
+.songItem::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 15%;
+    height: 70%;
+    width: 0.25vw;
+    background: var(--gradient-accent);
+    border-radius: 0 0.2vw 0.2vw 0;
+    opacity: 0;
+    transform: scaleY(0);
+    transition: opacity 0.22s ease, transform 0.22s ease;
 }
 
 .songItem:hover {
-    transform: translateY(-10px);
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    background: linear-gradient(90deg,
+        rgba(0,229,195,0.07) 0%,
+        rgba(0,229,195,0.03) 50%,
+        transparent 100%);
+    border-bottom-color: rgba(0,229,195,0.15);
 }
 
-/* Platzhalter für das Cover-Art innerhalb der songItem */
-.songItem::before {
-    content: "🎵";
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2rem;
-    width: 120px;
-    height: 120px;
-    background: linear-gradient(135deg, #3a7ca5, #81c3d7);
-    border-radius: 10px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+.songItem:hover::before {
+    transform: scale(1.08);
+    box-shadow: 0 0.4vh 1.5vw rgba(0,229,195,0.2),
+                0 0 0 0.1vw rgba(0,229,195,0.3) inset;
 }
 
-/* Profile */
+.songItem:hover::after {
+    opacity: 1;
+    transform: scaleY(1);
+}
 
+/* ── Profile Card ────────────────────────────────────────────── */
 .profile-card {
-    width: 350px;
-    background: #ffffff;
-    border-radius: 20px;
+    width: 60vw;
+    max-width: 80rem;
+    background: var(--bg-card);
+    border: 0.1vw solid var(--border-subtle);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
-}
-
-.profile-card:hover {
-    transform: translateY(-5px);
-}
-
-.profile-header {
-    height: 80px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.profile-body {
-    padding: 0 25px 25px 25px;
-    text-align: center;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.35s ease, border-color 0.35s ease;
     position: relative;
 }
 
-.avatar-wrapper {
-    width: 90px;
-    height: 90px;
-    background: white;
-    border-radius: 50%;
-    margin: -45px auto 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.profile-card:hover {
+    box-shadow: var(--shadow-glow-teal);
+    border-color: var(--border-glow);
 }
 
+/* ── Banner strip with animated waveform ── */
+.profile-header {
+    height: 14vh;
+    background: linear-gradient(120deg, var(--blue-deep) 0%, var(--teal-muted) 45%, var(--blue-mid) 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 3vw 2vh;
+}
+
+/* Animated waveform bars */
+.profile-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 0.3vw,
+        rgba(0,229,195,0.12) 0.3vw,
+        rgba(0,229,195,0.12) 0.5vw
+    );
+    mask-image: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+    animation: waveShift 6s linear infinite;
+}
+
+@keyframes waveShift {
+    from { background-position: 0 0; }
+    to   { background-position: 4vw 0; }
+}
+
+/* Teal glow bottom edge */
+.profile-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 0.2vh;
+    background: var(--gradient-accent);
+    opacity: 0.6;
+}
+
+/* Username displayed in the banner */
+.profile-header .username-banner {
+    font-family: 'Syne', sans-serif;
+    font-size: 4vh;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    text-shadow: 0 0 3vw rgba(0,229,195,0.5), 0 0.2vh 1vw rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 1;
+}
+
+/* Hide the avatar entirely */
+.avatar-wrapper,
 .avatar-placeholder {
-    width: 80px;
-    height: 80px;
-    background: #e2e8f0;
-    border-radius: 50%;
+    display: none;
+}
+
+/* ── Profile body: horizontal info row ── */
+.profile-body {
+    padding: 3vh 3vw 3vh;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 3vw;
+    position: relative;
+}
+
+/* Left: username + badge stacked */
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    flex: 1;
 }
 
 .username {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.6vh;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    line-height: 1;
     margin: 0;
-    font-size: 1.5rem;
-    color: #2d3748;
-    font-weight: 700;
 }
 
 .status-badge {
-    display: inline-block;
-    background: #c6f6d5;
-    color: #2f855a;
-    font-size: 0.75rem;
-    padding: 2px 10px;
-    border-radius: 12px;
-    margin: 8px 0 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5vw;
+    background: rgba(0,229,195,0.1);
+    color: var(--teal-bright);
+    border: 0.1vw solid rgba(0,229,195,0.3);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.4vh;
     font-weight: 600;
+    padding: 0.5vh 1.2vw;
+    border-radius: 2vh;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
+    width: fit-content;
 }
 
+/* Green pulse dot before "Aktiv" */
+.status-badge::before {
+    content: '';
+    width: 0.7vh;
+    height: 0.7vh;
+    border-radius: 50%;
+    background: var(--teal-bright);
+    box-shadow: 0 0 0.6vw var(--teal-bright);
+    animation: statusPulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* Right: last login block */
 .login-meta {
-    font-size: 0.85rem;
-    color: #718096;
-    margin: 0;
-    border-top: 1px solid #edf2f7;
-    padding-top: 15px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.3vh;
+    color: var(--text-muted);
+    text-align: right;
+    line-height: 1.5;
+    padding-left: 3vw;
+    border-left: 0.1vw solid var(--border-subtle);
 }
 
 .timestamp {
-    color: #4a5568;
-    font-weight: 500;
     display: block;
-    margin-top: 4px;
+    margin-top: 0.6vh;
+    font-size: 1.8vh;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
 }
 
+/* ── Profile Banner ──────────────────────────────────────────── */
 #profileBanner {
-    height: 50vh;
+    position: relative;
+    z-index: 1;
+    height: 40vh;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
+/* ── Play Button Box ─────────────────────────────────────────── */
 #playButtonBox {
-    height: 20vh;
+    position: relative;
+    z-index: 1;
+    height: 18vh;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -200,18 +500,82 @@ body {
 }
 
 #playButton {
-    height: 8vh;
-    width: 20vw;
+    height: 7vh;
+    width: 28vw;
+    max-width: 36rem;
+    min-width: 16rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #a2d2ff;
-    color: black;
-    border-radius: 2vh;
+    gap: 1vw;
+    background: linear-gradient(135deg, var(--teal-bright) 0%, var(--blue-electric) 100%);
+    color: var(--bg-base);
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6vh;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: var(--radius-xl);
     user-select: none;
-    transition: all ease-in-out 0.3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 0 0 0.1vw rgba(0,229,195,0.4),
+        0 0.8vh 2.5vw rgba(0,229,195,0.3),
+        0 0.2vh 0.6vw rgba(0,0,0,0.4);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Pulse ring */
+#playButton::before {
+    content: '';
+    position: absolute;
+    inset: -0.25vw;
+    border-radius: inherit;
+    border: 0.15vw solid rgba(0,229,195,0.4);
+    animation: pulseRing 2.5s ease-in-out infinite;
+}
+
+@keyframes pulseRing {
+    0%   { opacity: 0; transform: scale(1); }
+    50%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.06); }
+}
+
+/* Play icon */
+#playButton::after {
+    content: '▶';
+    font-size: 0.9em;
+}
+
+#playButton p {
+    margin: 0;
+    position: relative;
+    z-index: 1;
 }
 
 #playButton:hover {
-    transform: scale(1.1);
+    transform: scale(1.06) translateY(-0.3vh);
+    box-shadow:
+        0 0 0 0.1vw rgba(0,229,195,0.6),
+        0 1.2vh 3vw rgba(0,229,195,0.45),
+        0 0.4vh 1vw rgba(0,0,0,0.4);
+}
+
+#playButton:active {
+    transform: scale(0.98) translateY(0);
+    transition-duration: 0.1s;
+}
+
+/* ── User Overlay wrapper ────────────────────────────────────── */
+#userOverlav {
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Utility: scrollbar global ───────────────────────────────── */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--teal-muted) transparent;
 }

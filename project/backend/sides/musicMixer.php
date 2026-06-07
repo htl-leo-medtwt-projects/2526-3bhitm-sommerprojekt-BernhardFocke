@@ -32,9 +32,11 @@ function loadSongs()
 <body>
     <nav>
         <div id="navBar">
-            <div class="navItem">
-                <img src="../../frontend/img/startpage/logoWhite.png" alt="whiteLogo">
-            </div>
+            <a href="../../frontend/index.html">
+                <div class="navItem">
+                    <img src="../../frontend/img/startpage/logoWhite.png" alt="whiteLogo">
+                </div>
+            </a>
 
             <div class="navItem">
                 <p>Music Mixer</p>
@@ -49,7 +51,7 @@ function loadSongs()
             </div>
 
             <div class="navItem" id="login">
-                <p>Login</p>
+                <p>Pofile</p>
             </div>
         </div>
     </nav>
