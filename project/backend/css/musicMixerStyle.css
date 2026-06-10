@@ -1,724 +1,933 @@
-@font-face {
-    font-family: Noto;
-    src: url(../../frontend/font/login/NotoSansChakma-Regular.ttf);
+/* ═══════════════════════════════════════════════════
+   Music Mixer Style — aligned with profileStyle
+   ═══════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+/* ── Design Tokens ──────────── */
+:root {
+    --bg-base:       #080f1a;
+    --bg-surface:    #0d1b2a;
+    --bg-card:       #0f2235;
+    --bg-card-hover: #152d44;
+
+    --teal-bright:   #00e5c3;
+    --teal-mid:      #00b4a0;
+    --teal-muted:    #1a7a6e;
+    --blue-electric: #1db8ff;
+    --blue-mid:      #1a7fb5;
+    --blue-deep:     #0e4d78;
+
+    --text-primary:  #e8f4f8;
+    --text-secondary:#7fafc4;
+    --text-muted:    #3d6478;
+
+    --border-subtle: rgba(0, 229, 195, 0.12);
+    --border-glow:   rgba(0, 229, 195, 0.35);
+
+    --gradient-accent: linear-gradient(135deg, var(--teal-bright), var(--blue-electric));
+    --gradient-card:   linear-gradient(160deg, rgba(0,229,195,0.07) 0%, rgba(29,184,255,0.04) 100%);
+
+    --radius-sm:  6px;
+    --radius-md:  12px;
+    --radius-lg:  18px;
+    --radius-xl:  28px;
+
+    --shadow-glow-teal: 0 0 32px rgba(0, 229, 195, 0.18), 0 4px 24px rgba(0,0,0,0.5);
+    --shadow-glow-blue: 0 0 32px rgba(29, 184, 255, 0.18), 0 4px 24px rgba(0,0,0,0.5);
+    --shadow-card:      0 8px 40px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset;
+
+    /* Fader accent colours */
+    --col-accent-v: var(--teal-bright);
+    --col-accent-s: var(--blue-electric);
+    --col-panel:    #0d1b2a;
+    --col-panel2:   #080f1a;
+    --col-border:   rgba(0,229,195,0.12);
+    --col-muted:    #2a5068;
+    --track-w:      8px;
+    --knob-w:       60px;
+    --knob-h:       26px;
+}
+
+/* ── Reset & Base ──────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    height: auto;
-    width: 99vw;
+    min-height: 100vh;
+    width: 100vw;
     overflow-x: hidden;
-    margin: 0;
-    padding: 0;
-    background: #1D3557;
-    background: linear-gradient(145deg, rgba(29, 53, 87, 1) 0%, rgba(69, 123, 157, 1) 68%);
-    font-family: Noto;
+    background-color: var(--bg-base);
+    background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,180,160,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 90% 60%,  rgba(29,184,255,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 30% at 10% 80%,  rgba(0,229,195,0.05) 0%, transparent 60%);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
 }
 
+/* Ambient orb — same as profileStyle */
+body::before {
+    content: '';
+    position: fixed;
+    top: -20vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70vw;
+    height: 40vh;
+    background: radial-gradient(ellipse, rgba(0,229,195,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: ambientPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes ambientPulse {
+    from { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
+    to   { opacity: 1;   transform: translateX(-50%) scaleX(1.15); }
+}
+
+a {
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+/* ── Nav ──────────────────────────────────────────── */
 nav {
-    height: 15vh;
+    position: relative;
+    z-index: 10;
+    height: 14vh;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 1vh;
-    color: white;
+    padding: 0 2vw;
 }
 
 #navBar {
-    height: 10vh;
+    height: 7vh;
     width: 80%;
-    background-color: black;
-    border-radius: 2vh;
-    background-color: #778DA9;
+    max-width: 1100px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
     display: flex;
-    justify-content: left;
+    align-items: center;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    position: relative;
+}
+
+/* teal top-bar accent on nav */
+#navBar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gradient-accent);
+    opacity: 0.7;
 }
 
 .navItem {
     height: 100%;
-    width: 10vw;
+    padding: 0 1.4vw;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2.5vh;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.navItem:hover {
+    color: var(--teal-bright);
 }
 
 .navItem > img {
     height: auto;
-    width: 40%;
+    width: 36px;
 }
 
-a {
-  text-decoration: none;
-  color: white;
+/* Logo item slightly wider */
+.navItem:first-child {
+    padding: 0 1.6vw;
+    border-right: 1px solid var(--border-subtle);
 }
 
-#mixer {
-    height: 50vh;
-    width: 100%;
-    margin-top: 20vh;
+/* active nav label */
+.navItem.active {
+    color: var(--teal-bright);
 }
 
-#table {
-    height: 30vh;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.tableItems {
-    height: auto;
-    width: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.tableItems > img {
-    height: auto;
-    width: 60%;
-}
-
+/* ── Song Slider Section ──────────────────────────── */
 #songSliderSection {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto 3vh auto;
-  padding: 0 0 2vh 0;
+    position: relative;
+    z-index: 1;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto 4vh auto;
+    padding: 0 0 2vh 0;
 }
- 
-/* ── Header ── */
+
+/* ── Slider Header ── */
 #sliderHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 0.5rem 1.2rem 0.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  margin-bottom: 1.6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.4rem 1.2rem 0.4rem;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 1.8rem;
 }
- 
+
 .sliderLabel {
-  font-family: 'Courier New', monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.35em;
-  color: #00ffaa;
-  text-transform: uppercase;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    color: var(--teal-bright);
+    text-transform: uppercase;
+    font-weight: 700;
 }
- 
+
 .trackCounter {
-  font-family: 'Courier New', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  color: rgba(255,255,255,0.3);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
 }
- 
-/* ── Slider Wrapper (arrows + track) ── */
+
+/* ── Slider Wrapper ── */
 #songSliderWrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    position: relative;
 }
- 
+
 /* ── Arrow Buttons ── */
 .sliderArrow {
-  background: rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.6);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s;
-  backdrop-filter: blur(4px);
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    backdrop-filter: blur(4px);
 }
- 
+
 .sliderArrow:hover {
-  background: rgba(0,255,170,0.12);
-  border-color: #00ffaa;
-  color: #00ffaa;
-  transform: scale(1.1);
+    background: rgba(0, 229, 195, 0.1);
+    border-color: var(--teal-bright);
+    color: var(--teal-bright);
+    transform: scale(1.1);
+    box-shadow: 0 0 12px rgba(0,229,195,0.2);
 }
- 
+
 /* ── Slider Track ── */
 #songSlider {
-  display: flex;
-  gap: 1rem;
-  overflow: hidden;          /* arrows control scrolling via JS */
-  scroll-behavior: smooth;
-  flex: 1;
-  padding: 0.4rem 0.1rem 0.4rem 0.1rem;
+    display: flex;
+    gap: 1rem;
+    overflow: hidden;
+    scroll-behavior: smooth;
+    flex: 1;
+    padding: 0.4rem 0.1rem;
 }
- 
+
 /* ── Song Card ── */
 .songCard {
-  flex: 0 0 200px;
-  cursor: pointer;
-  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1);
+    flex: 0 0 200px;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(.34,1.56,.64,1);
 }
- 
+
 .songCard:hover {
-  transform: translateY(-4px);
+    transform: translateY(-4px);
 }
- 
+
 .songCard.active .songCardInner {
-  border-color: #00ffaa;
-  background: linear-gradient(145deg, #0d2a1f 0%, #0a1a1a 100%);
-  box-shadow: 0 0 0 1px #00ffaa33, 0 8px 30px rgba(0,255,170,0.15), inset 0 0 20px rgba(0,255,170,0.04);
+    border-color: var(--teal-bright);
+    background: linear-gradient(145deg, rgba(0,229,195,0.08) 0%, var(--bg-card) 100%);
+    box-shadow: 0 0 0 1px rgba(0,229,195,0.25), 0 8px 30px rgba(0,229,195,0.12), inset 0 0 20px rgba(0,229,195,0.04);
 }
- 
+
 .songCard.active .songWaveIcon span {
-  background: #00ffaa;
-  animation: waveBar 0.6s ease-in-out infinite alternate;
+    background: var(--teal-bright);
+    animation: waveBar 0.6s ease-in-out infinite alternate;
 }
- 
+
 .songCard.active .songPlayIndicator svg {
-  fill: #00ffaa;
+    fill: var(--teal-bright);
 }
- 
+
 .songCardInner {
-  background: linear-gradient(145deg, #12202e 0%, #0b151e 100%);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 12px;
-  padding: 1.2rem 1rem 1rem 1rem;
-  height: 140px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+    background: var(--gradient-card);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1.2rem 1rem 1rem 1rem;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
 }
- 
+
 .songCardInner:hover {
-  border-color: rgba(255,255,255,0.18);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    border-color: rgba(0,229,195,0.3);
+    box-shadow: var(--shadow-glow-teal);
 }
- 
+
 /* Glow overlay on hover */
 .songCardGlow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 0%, rgba(0,255,170,0.06) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
-  border-radius: 12px;
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(0,229,195,0.07) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    border-radius: var(--radius-md);
 }
- 
+
 .songCardInner:hover .songCardGlow {
-  opacity: 1;
+    opacity: 1;
 }
- 
+
 /* Track number */
 .songIndex {
-  font-family: 'Courier New', monospace;
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.2);
-  letter-spacing: 0.1em;
-  position: absolute;
-  top: 0.8rem;
-  right: 0.9rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    position: absolute;
+    top: 0.8rem;
+    right: 0.9rem;
 }
- 
+
 /* Mini wave icon */
 .songWaveIcon {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 22px;
-  margin-bottom: 0.5rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 22px;
+    margin-bottom: 0.5rem;
 }
- 
+
 .songWaveIcon span {
-  display: block;
-  width: 3px;
-  border-radius: 2px;
-  background: rgba(255,255,255,0.25);
-  transition: background 0.3s, height 0.3s;
+    display: block;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--text-muted);
+    transition: background 0.3s, height 0.3s;
 }
- 
+
 .songWaveIcon span:nth-child(1) { height: 8px; }
 .songWaveIcon span:nth-child(2) { height: 16px; }
 .songWaveIcon span:nth-child(3) { height: 12px; }
 .songWaveIcon span:nth-child(4) { height: 20px; }
 .songWaveIcon span:nth-child(5) { height: 9px; }
- 
+
 @keyframes waveBar {
-  from { height: 4px; }
-  to   { height: 20px; }
+    from { height: 4px; }
+    to   { height: 20px; }
 }
- 
+
 .songCard.active .songWaveIcon span:nth-child(1) { animation-delay: 0s; }
 .songCard.active .songWaveIcon span:nth-child(2) { animation-delay: 0.1s; }
 .songCard.active .songWaveIcon span:nth-child(3) { animation-delay: 0.05s; }
 .songCard.active .songWaveIcon span:nth-child(4) { animation-delay: 0.15s; }
 .songCard.active .songWaveIcon span:nth-child(5) { animation-delay: 0.08s; }
- 
+
 /* Song title & meta */
 .songCardInfo {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
- 
+
 .songTitle {
-  margin: 0 0 0.2rem 0;
-  font-size: 0.85rem;
-  color: #e8e8e8;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
+    margin: 0 0 0.2rem 0;
+    font-size: 0.84rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    font-family: 'DM Sans', sans-serif;
 }
- 
+
 .songMeta {
-  margin: 0;
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.35);
-  font-family: 'Courier New', monospace;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
+    margin: 0;
+    font-size: 0.67rem;
+    color: var(--text-secondary);
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
 }
- 
+
 /* Play icon on card */
 .songPlayIndicator {
-  position: absolute;
-  top: 0.7rem;
-  left: 0.8rem;
+    position: absolute;
+    top: 0.7rem;
+    left: 0.8rem;
 }
- 
+
 .songPlayIndicator svg {
-  width: 12px;
-  height: 12px;
-  fill: rgba(255,255,255,0.12);
-  transition: fill 0.3s;
+    width: 12px;
+    height: 12px;
+    fill: var(--text-muted);
+    transition: fill 0.3s;
 }
- 
+
 .songCardInner:hover .songPlayIndicator svg {
-  fill: rgba(255,255,255,0.5);
+    fill: var(--text-secondary);
 }
- 
+
 /* ── Now Playing Bar ── */
 #nowPlayingBar {
-  margin-top: 1.6rem;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 12px;
-  padding: 0.9rem 1.2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  backdrop-filter: blur(8px);
+    margin-top: 1.6rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-card);
+    position: relative;
+    overflow: hidden;
 }
- 
+
+/* accent line top */
+#nowPlayingBar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gradient-accent);
+    opacity: 0.5;
+}
+
 #npLeft {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
- 
+
 /* Animated bars icon */
 #npAnimIcon {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 20px;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 20px;
 }
- 
+
 #npAnimIcon span {
-  display: block;
-  width: 3px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 2px;
-  height: 6px;
-  transition: background 0.3s;
+    display: block;
+    width: 3px;
+    background: var(--text-muted);
+    border-radius: 2px;
+    height: 6px;
+    transition: background 0.3s;
 }
- 
+
 #npAnimIcon.playing span {
-  background: #00ffaa;
-  animation: waveBar 0.5s ease-in-out infinite alternate;
+    background: var(--teal-bright);
+    animation: waveBar 0.5s ease-in-out infinite alternate;
 }
- 
+
 #npAnimIcon.playing span:nth-child(1) { animation-delay: 0s; }
 #npAnimIcon.playing span:nth-child(2) { animation-delay: 0.12s; }
 #npAnimIcon.playing span:nth-child(3) { animation-delay: 0.06s; }
 #npAnimIcon.playing span:nth-child(4) { animation-delay: 0.18s; }
- 
-#npInfo { display: flex; flex-direction: column; }
- 
+
+#npInfo { display: flex; flex-direction: column; gap: 0.2rem; }
+
 #npTitle {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #e0e0e0;
-  font-weight: 600;
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-family: 'Syne', sans-serif;
 }
- 
+
 #npArtist {
-  margin: 0;
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.35);
-  font-family: 'Courier New', monospace;
+    margin: 0;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.04em;
 }
- 
+
 /* Play / Stop button */
 #npControls {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
 }
- 
-#btnPlayStop, #btnRnd {
-  background: rgba(0,255,170,0.1);
-  border: 1px solid rgba(0,255,170,0.3);
-  color: #00ffaa;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
+
+#btnPlayStop {
+    background: rgba(0,229,195,0.1);
+    border: 1px solid rgba(0,229,195,0.3);
+    color: var(--teal-bright);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
 }
- 
-#btnPlayStop:hover, #btnRnd:hover {
-  background: rgba(0,255,170,0.22);
-  transform: scale(1.08);
-  box-shadow: 0 0 12px rgba(0,255,170,0.25);
+
+#btnPlayStop:hover {
+    background: rgba(0,229,195,0.2);
+    transform: scale(1.08);
+    box-shadow: 0 0 16px rgba(0,229,195,0.3);
 }
- 
-#btnPlayStop:active, #btnRnd:active {
-  transform: scale(0.96);
+
+#btnPlayStop:active { transform: scale(0.96); }
+
+#btnPlayStop svg {
+    width: 18px;
+    height: 18px;
+    fill: var(--teal-bright);
 }
- 
-#btnPlayStop svg, #btnRnd svg {
-  width: 18px;
-  height: 18px;
-  fill: #00ffaa;
-}
- 
+
 #btnRnd {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.5);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
 }
- 
-#btnRnd svg { fill: rgba(255,255,255,0.5); }
- 
+
+#btnRnd svg {
+    width: 18px;
+    height: 18px;
+    fill: var(--text-secondary);
+}
+
 #btnRnd:hover {
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.3);
-  box-shadow: none;
+    background: rgba(29,184,255,0.1);
+    border-color: rgba(29,184,255,0.35);
+    box-shadow: 0 0 12px rgba(29,184,255,0.2);
 }
- 
-/* ── Record spin animation ── */
+
+/* ── Mixer Section ─────────────────────────────────── */
+#mixer {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding-bottom: 6vh;
+}
+
+/* Signature: full-width waveform scanline — unique to the mixer */
+#mixer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 0.3vw,
+        rgba(0,229,195,0.04) 0.3vw,
+        rgba(0,229,195,0.04) 0.5vw
+    );
+    mask-image: linear-gradient(to bottom,
+        transparent 0%, rgba(0,0,0,0.5) 15%,
+        rgba(0,0,0,0.5) 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+        transparent 0%, rgba(0,0,0,0.5) 15%,
+        rgba(0,0,0,0.5) 85%, transparent 100%);
+    animation: waveShift 10s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes waveShift {
+    from { background-position: 0 0; }
+    to   { background-position: 80px 0; }
+}
+
+/* Section heading for mixer */
+#mixerHeading {
+    position: relative;
+    z-index: 1;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto 3vh auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+#mixerHeading span {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    color: var(--teal-bright);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+#mixerTable {
+    position: relative;
+    z-index: 1;
+}
+
+#table {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4vw;
+    padding: 4vh 0;
+}
+
+.tableItems {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+}
+
+/* ── Record ──────────────────────────────────────── */
 #recordWrapper {
-  position: relative;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
 }
- 
+
+/* Ambient glow ring behind record */
+#recordWrapper::before {
+    content: '';
+    position: absolute;
+    width: 110%;
+    height: 110%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,195,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    transition: opacity 0.4s;
+    opacity: 0.6;
+}
+
+#recordWrapper:hover::before,
+#recordWrapper.spinning::before {
+    opacity: 1;
+}
+
 #recordImg {
-  height: auto;
-  width: 60%;
-  transition: filter 0.4s;
+    height: auto;
+    width: 60%;
+    transition: filter 0.4s;
+    filter: drop-shadow(0 0 8px rgba(0,0,0,0.6));
 }
- 
+
 #recordWrapper.spinning #recordImg {
-  animation: spinRecord 4s linear infinite;
-  filter: drop-shadow(0 0 14px rgba(0,255,170,0.3));
+    animation: spinRecord 4s linear infinite;
+    filter: drop-shadow(0 0 18px rgba(0,229,195,0.35));
 }
- 
+
 @keyframes spinRecord {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
 }
 
-:root {
-  --col-accent-v: #00ffaa;   /* Volume  → Teal-Grün  */
-  --col-accent-s: #8ecae6;   /* Speed   → Amber-Rot  */
-  --col-panel:    #111c28;
-  --col-panel2:   #0c1620;
-  --col-border:   #1e2f42;
-  --col-muted:    #3a5068;
-  --track-w:      8px;
-  --knob-w:       60px;
-  --knob-h:       26px;
-}
+/* ════════════════════════════════════════════════════
+   FADER PANEL  — minimal token changes, same structure
+   ════════════════════════════════════════════════════ */
 
-/* ── Wrapper: beide Fader nebeneinander ── */
 .fader-panel-duo {
-  display: flex;
-  gap: 0;
-  background: var(--col-panel);
-  border: 1px solid var(--col-border);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.03),
-    0 30px 80px rgba(0,0,0,0.7),
-    inset 0 1px 0 rgba(255,255,255,0.04);
+    display: flex;
+    gap: 0;
+    background: var(--col-panel);
+    border: 1px solid var(--col-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.03),
+        0 30px 80px rgba(0,0,0,0.7),
+        inset 0 1px 0 rgba(255,255,255,0.04);
 }
 
-/* ── Einzelne Fader-Spalte ── */
 .fader-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 32px 28px 24px;
-  position: relative;
-  width: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 28px 24px;
+    position: relative;
+    width: 160px;
 }
 
 .fader-col:first-child {
-  border-right: 1px solid var(--col-border);
+    border-right: 1px solid var(--col-border);
 }
 
-/* Farbiger Top-Balken je Fader */
 .fader-col::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
 }
+
 .fader-col.vol::before {
-  background: var(--col-accent-v);
-  box-shadow: 0 0 16px var(--col-accent-v);
+    background: var(--col-accent-v);
+    box-shadow: 0 0 16px var(--col-accent-v);
 }
 .fader-col.spd::before {
-  background: var(--col-accent-s);
-  box-shadow: 0 0 16px var(--col-accent-s);
+    background: var(--col-accent-s);
+    box-shadow: 0 0 16px var(--col-accent-s);
 }
 
-/* ── Beschriftung oben ── */
 .fader-label {
-  font-family: 'Courier New', monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  margin-bottom: 18px;
-  margin-top: 6px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    margin-top: 6px;
+    font-weight: 700;
 }
 .fader-col.vol .fader-label { color: var(--col-accent-v); }
 .fader-col.spd .fader-label { color: var(--col-accent-s); }
 
-/* ── Fader-Area (Spur + Ticks + Knopf) ── */
 .fader-area {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  height: 280px;
-  width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 280px;
+    width: 100%;
 }
 
-/* ── Skalenstriche ── */
 .ticks {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-  position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    position: absolute;
 }
 .ticks.left  { left: 12px;  align-items: flex-end; }
 .ticks.right { right: 12px; align-items: flex-start; }
 
 .ticks span {
-  display: block;
-  height: 1px;
-  background: var(--col-muted);
+    display: block;
+    height: 1px;
+    background: var(--col-muted);
 }
 .ticks span:nth-child(odd)  { width: 10px; }
 .ticks span:nth-child(even) { width: 6px; opacity: 0.5; }
 
-/* Mittlerer Tick beim Speed-Fader hervorgehoben */
 .fader-col.spd .ticks span:nth-child(5) {
-  width: 14px;
-  background: var(--col-accent-s);
-  box-shadow: 0 0 6px var(--col-accent-s);
-  opacity: 1;
+    width: 14px;
+    background: var(--col-accent-s);
+    box-shadow: 0 0 6px var(--col-accent-s);
+    opacity: 1;
 }
 
-/* ── Spur (vertikale Nut) ── */
 .fader-track {
-  position: relative;
-  width: var(--track-w);
-  height: 100%;
-  cursor: pointer;
-  border-radius: 4px;
+    position: relative;
+    width: var(--track-w);
+    height: 100%;
+    cursor: pointer;
+    border-radius: 4px;
 }
 
 .fader-track-bg {
-  position: absolute;
-  inset: 0;
-  border-radius: 4px;
-  background: var(--col-panel2);
-  border: 1px solid var(--col-border);
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    background: var(--col-panel2);
+    border: 1px solid var(--col-border);
 }
 
-/* Gefüllter Bereich – Höhe per JS gesetzt */
 .fader-track-fill {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  border-radius: 4px;
-  opacity: 0.25;
-  pointer-events: none;
-  transition: height 0.05s;
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    border-radius: 4px;
+    opacity: 0.25;
+    pointer-events: none;
+    transition: height 0.05s;
 }
 .fader-col.vol .fader-track-fill { background: var(--col-accent-v); }
 .fader-col.spd .fader-track-fill { background: var(--col-accent-s); }
 
-/* Mittellinie Speed-Fader (zeigt 1× Referenz) */
 .speed-center-line {
-  position: absolute;
-  left: -22px; right: -22px;
-  height: 1px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  z-index: 1;
+    position: absolute;
+    left: -22px; right: -22px;
+    height: 1px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 1;
 }
 .speed-center-line::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--col-accent-s);
-  opacity: 0.2;
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--col-accent-s);
+    opacity: 0.2;
 }
 
-/* ── Knopf ── */
 .fader-knob {
-  position: absolute;
-  width: var(--knob-w);
-  height: var(--knob-h);
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 4px;
-  cursor: grab;
-  user-select: none;
-  z-index: 2;
-  transition: box-shadow 0.15s;
+    position: absolute;
+    width: var(--knob-w);
+    height: var(--knob-h);
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 4px;
+    cursor: grab;
+    user-select: none;
+    z-index: 2;
+    transition: box-shadow 0.15s;
 }
 .fader-knob:active { cursor: grabbing; }
 
-/* Volume-Knopf – teal Chrom */
 .fader-col.vol .fader-knob {
-  background: linear-gradient(180deg,
-    #1e3a30 0%, #0f2218 40%, #071510 50%, #0f2218 60%, #1a3028 100%
-  );
-  border: 1px solid #0d4030;
-  box-shadow:
-    0 3px 12px rgba(0,0,0,0.8),
-    inset 0 1px 0 rgba(0,255,170,0.15),
-    0 0 0 1px rgba(0,255,170,0.1);
+    background: linear-gradient(180deg,
+        #0d2e25 0%, #061810 40%, #030e09 50%, #061810 60%, #0d2820 100%
+    );
+    border: 1px solid rgba(0,229,195,0.25);
+    box-shadow:
+        0 3px 12px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(0,229,195,0.15),
+        0 0 0 1px rgba(0,229,195,0.1);
 }
 .fader-col.vol .fader-knob:hover {
-  box-shadow:
-    0 3px 12px rgba(0,0,0,0.8),
-    inset 0 1px 0 rgba(0,255,170,0.25),
-    0 0 14px rgba(0,255,170,0.2),
-    0 0 0 1px rgba(0,255,170,0.25);
+    box-shadow:
+        0 3px 12px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(0,229,195,0.25),
+        0 0 14px rgba(0,229,195,0.25),
+        0 0 0 1px rgba(0,229,195,0.3);
 }
 
-/* Speed-Knopf – amber Chrom */
 .fader-col.spd .fader-knob {
-  background: linear-gradient(180deg,
-    #1a3a4a 0%, #0d2233 40%, #071520 50%, #0d2233 60%, #162e3d 100%
-  );
-  border: 1px solid #2a5a72;
-  box-shadow:
-    0 3px 12px rgba(0,0,0,0.8),
-    inset 0 1px 0 rgba(142,202,230,0.15),
-    0 0 0 1px rgba(142,202,230,0.1);
+    background: linear-gradient(180deg,
+        #0d2238 0%, #071526 40%, #040d1a 50%, #071526 60%, #0d1e30 100%
+    );
+    border: 1px solid rgba(29,184,255,0.25);
+    box-shadow:
+        0 3px 12px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(29,184,255,0.15),
+        0 0 0 1px rgba(29,184,255,0.1);
 }
- 
 .fader-col.spd .fader-knob:hover {
-  box-shadow:
-    0 3px 12px rgba(0,0,0,0.8),
-    inset 0 1px 0 rgba(142,202,230,0.25),
-    0 0 14px rgba(142,202,230,0.2),
-    0 0 0 1px rgba(142,202,230,0.25);
+    box-shadow:
+        0 3px 12px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(29,184,255,0.25),
+        0 0 14px rgba(29,184,255,0.25),
+        0 0 0 1px rgba(29,184,255,0.3);
 }
 
-/* Mittlere Leuchtlinie auf dem Knopf */
 .fader-knob::after {
-  content: '';
-  position: absolute;
-  top: 50%; left: 8px; right: 8px; height: 2px;
-  transform: translateY(-50%);
-  border-radius: 1px;
+    content: '';
+    position: absolute;
+    top: 50%; left: 8px; right: 8px; height: 2px;
+    transform: translateY(-50%);
+    border-radius: 1px;
 }
 .fader-col.vol .fader-knob::after {
-  background: var(--col-accent-v);
-  box-shadow: 0 0 6px var(--col-accent-v);
+    background: var(--col-accent-v);
+    box-shadow: 0 0 6px var(--col-accent-v);
 }
 .fader-col.spd .fader-knob::after {
-  background: var(--col-accent-s);
-  box-shadow: 0 0 6px var(--col-accent-s);
+    background: var(--col-accent-s);
+    box-shadow: 0 0 6px var(--col-accent-s);
 }
 
-/* Grip-Muster auf Knopf */
 .fader-knob::before {
-  content: '';
-  position: absolute;
-  top: 4px; bottom: 4px; left: 0; right: 0;
-  background: repeating-linear-gradient(
-    to right,
-    transparent 0px, transparent 3px,
-    rgba(255,255,255,0.04) 3px, rgba(255,255,255,0.04) 4px
-  );
-  border-radius: 3px;
-  pointer-events: none;
+    content: '';
+    position: absolute;
+    top: 4px; bottom: 4px; left: 0; right: 0;
+    background: repeating-linear-gradient(
+        to right,
+        transparent 0px, transparent 3px,
+        rgba(255,255,255,0.04) 3px, rgba(255,255,255,0.04) 4px
+    );
+    border-radius: 3px;
+    pointer-events: none;
 }
 
-/* ── Wert-Anzeige ── */
 .fader-readout {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
 }
 .readout-label {
-  font-family: 'Courier New', monospace;
-  font-size: 0.52rem;
-  letter-spacing: 0.25em;
-  color: var(--col-muted);
-  text-transform: uppercase;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.5rem;
+    letter-spacing: 0.28em;
+    color: var(--col-muted);
+    text-transform: uppercase;
+    font-weight: 700;
 }
 .readout-value {
-  font-family: 'Courier New', monospace;
-  font-size: 1.05rem;
-  font-weight: bold;
-  letter-spacing: 0.05em;
-  min-width: 64px;
-  text-align: center;
-  padding: 4px 10px;
-  border-radius: 4px;
-  border: 1px solid;
-  transition: color 0.2s, border-color 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    min-width: 64px;
+    text-align: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid;
+    transition: color 0.2s, border-color 0.2s;
 }
 .fader-col.vol .readout-value {
-  color: var(--col-accent-v);
-  border-color: rgba(0,255,170,0.2);
-  background: rgba(0,255,170,0.04);
+    color: var(--col-accent-v);
+    border-color: rgba(0,229,195,0.2);
+    background: rgba(0,229,195,0.05);
 }
 .fader-col.spd .readout-value {
-  color: var(--col-accent-s);
-  border-color: #8ecae6aa;
-  background: rgba(16, 169, 189, 0.04);
+    color: var(--col-accent-s);
+    border-color: rgba(29,184,255,0.2);
+    background: rgba(29,184,255,0.05);
+}
+
+/* ── Scrollbar ────────────────────────────────────── */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--teal-muted) transparent;
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--teal-muted);
+    border-radius: 4px;
 }
