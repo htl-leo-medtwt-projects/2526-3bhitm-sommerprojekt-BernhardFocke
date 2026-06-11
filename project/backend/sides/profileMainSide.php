@@ -27,22 +27,22 @@
 
         <div id="profileBanner">
             <?php
-                showUserProfile();
-             ?>
+            showUserProfile();
+            ?>
         </div>
-        
+
     </div>
 
     <div id="dropHead">
         <div id="dropzone">
             <p>Upload your Songs</p>
         </div>
-    </form>
+        </form>
     </div>
 
     <div id="songContainer">
         <?php
-            showSongs();
+        showSongs();
         ?>
     </div>
 

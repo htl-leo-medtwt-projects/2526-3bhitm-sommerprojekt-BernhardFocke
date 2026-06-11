@@ -11,8 +11,8 @@ $uploadOk = 1;
  
 $imageFileType = pathinfo($target_file, PATHINFO_EXTENSION);
  
-$finfo = new finfo(FILEINFO_MIME_TYPE);
-$mimeType = $finfo->file($target_file);
+// $finfo = new finfo(FILEINFO_MIME_TYPE);
+// $mimeType = $finfo->file($target_file);
 
 
 $allowedMimeTypes = [
@@ -22,13 +22,10 @@ $allowedMimeTypes = [
     'audio/x-wav'  // Alternative für WAV
 ];
 
-if(!isset($_FILES["fileToUpload"])) {
-    if(in_array($mimeType, $allowedMimeTypes)) {
-        $uploadOk = 1;
-    } else {
-        $uploadOk = 0;
-    }
-}
+// if(!in_array($mimeType, $allowedMimeTypes)) {
+//     $uploadOk = 0;
+//     echo "Ungültiger Dateityp.";
+// }
  
 // Check if file already exists
 if (file_exists($target_file)) {

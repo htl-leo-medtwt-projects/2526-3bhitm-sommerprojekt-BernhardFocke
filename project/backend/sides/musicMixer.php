@@ -38,21 +38,29 @@ function loadSongs()
                 </div>
             </a>
 
-            <div class="navItem">
-                <p>Music Mixer</p>
-            </div>
+            <a href="">
+                <div class="navItem">
+                    <p>Music Mixer</p>
+                </div>
+            </a>
 
-            <div class="navItem">
-                <p>Placeholder</p>
-            </div>
+            <a href="">
+                <div class="navItem">
+                    <p>Placeholder</p>
+                </div>
+            </a>
 
-            <div class="navItem">
-                <p>Placeholder</p>
-            </div>
+            <a href="">
+                <div class="navItem">
+                    <p>Placeholder</p>
+                </div>
+            </a>
 
-            <div class="navItem" id="login">
-                <p>Pofile</p>
-            </div>
+            <a href="">
+                <div class="navItem" id="login">
+                    <p>Pofile</p>
+                </div>
+            </a>
         </div>
     </nav>
 
@@ -202,7 +210,7 @@ function loadSongs()
                                     <span class="readout-value" id="spd-output">1.00×</span>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
 

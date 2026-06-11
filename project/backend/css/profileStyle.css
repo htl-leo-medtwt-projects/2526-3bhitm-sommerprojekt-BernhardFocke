@@ -581,3 +581,57 @@ body::before {
     scrollbar-width: thin;
     scrollbar-color: var(--teal-muted) transparent;
 }
+
+/* ── Delete Button ───────────────────────────────────────────── */
+.delete-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+
+    width: 4vh;
+    height: 4vh;
+    padding: 0;
+    border: 0.1vw solid transparent;
+    border-radius: 0.6vw;
+    background: transparent;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: var(--text-muted);
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.85);
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.delete-btn svg {
+    width: 1.8vh;
+    height: 1.8vh;
+    pointer-events: none;
+}
+
+/* Reveal on row hover */
+.songItem:hover .delete-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Button own hover: red-tinted danger state */
+.delete-btn:hover {
+    color: #ff4d6d;
+    background: rgba(255, 77, 109, 0.1);
+    border-color: rgba(255, 77, 109, 0.3);
+    box-shadow: 0 0 1vw rgba(255, 77, 109, 0.15);
+    transform: scale(1.12);
+}
+
+.delete-btn:active {
+    transform: scale(0.95);
+    transition-duration: 0.08s;
+}
