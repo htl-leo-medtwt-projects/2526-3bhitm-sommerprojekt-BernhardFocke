@@ -41,10 +41,18 @@ function selectSong(index) {
   currentTrack              = new Audio(song.path);
   currentTrack.volume       = currentVolume;
   currentTrack.playbackRate = currentRate;
+  currentTrack.addEventListener('ended', onTrackEnded);
 
   playSong();
   updateNowPlaying(song);
   highlightCard(index);
+}
+
+function onTrackEnded() {
+  isPlaying = false;
+  updatePlayStopIcon();
+  document.getElementById('npAnimIcon')?.classList.remove('playing');
+  document.getElementById('recordWrapper')?.classList.remove('spinning');
 }
 
 // ════════════════════════════════════════════════════════
