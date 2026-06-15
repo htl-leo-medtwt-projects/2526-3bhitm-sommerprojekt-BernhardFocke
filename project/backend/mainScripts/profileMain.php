@@ -1,6 +1,21 @@
 <?php
 session_start();
 
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    $_SESSION = [];
+    session_unset();
+    session_destroy();
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+    header("Location: ../../frontend/index.html");
+    exit;
+}
+
 require "../database.php";
 
 function showSongs()

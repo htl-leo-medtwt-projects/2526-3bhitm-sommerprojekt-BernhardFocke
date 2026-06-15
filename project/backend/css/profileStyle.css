@@ -700,3 +700,38 @@ body::before {
 #dropzone.error p {
     color: #ff4d6d;
 }
+
+/* ── Logout Button ───────────────────────────────────────────── */
+#logoutBtn {
+    position: absolute;
+    right: 3vw;
+    top: 50%;
+    transform: translateY(-50%);
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5vw;
+
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.4vh;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-secondary);
+
+    padding: 0.8vh 1.6vw;
+    border: 0.1vw solid var(--border-subtle);
+    border-radius: 2vh;
+    background: rgba(0,229,195,0.04);
+
+    transition: all 0.25s ease;
+    z-index: 2;
+}
+
+#logoutBtn:hover {
+    color: var(--teal-bright);
+    border-color: var(--teal-bright);
+    background: rgba(0,229,195,0.1);
+    box-shadow: 0 0 1vw rgba(0,229,195,0.2);
+}

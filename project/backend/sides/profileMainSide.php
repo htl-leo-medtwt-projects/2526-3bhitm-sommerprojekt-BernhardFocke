@@ -1,5 +1,5 @@
 <?php
-    require "../mainScripts/profileMain.php";
+require "../mainScripts/profileMain.php";
 ?>
 
 <!DOCTYPE html>
@@ -23,13 +23,16 @@
                 echo "<h1> Welcome {$user} </h1>";
             }
             ?>
-        </div>
 
-        <div id="profileBanner">
-            <?php
-            showUserProfile();
-            ?>
+            <a id="logoutBtn" href="../mainScripts/profileMain.php?action=logout">Logout</a>
         </div>
+    </div>
+
+    <div id="profileBanner">
+        <?php
+        showUserProfile();
+        ?>
+    </div>
     </div>
 
     <div id="dropHead">

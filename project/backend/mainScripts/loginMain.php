@@ -3,6 +3,7 @@ session_start();
 
 require "../database.php";
 
+
 if (isset($_POST["submit"])) {
 
     $_username = $_POST["username"];

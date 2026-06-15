@@ -1,439 +1,530 @@
 // ════════════════════════════════════════════════════════
+//  IMPORTS  —  Tone.js via CDN (add to <head> in PHP):
+//  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+// ════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════════════════
-let songs            = [];
-let currentTrack     = null;
-let currentIndex     = null;
-let isPlaying        = false;
-let currentVolume    = 1.0;
-let currentRate      = 1.0;
-let sliderOffset     = 0;
-const CARD_WIDTH     = 216;   // px (card 200px + gap 16px)
+let songs         = [];
+let currentIndex  = null;
+let isPlaying     = false;
+let currentVolume = 1.0;
+let currentRate   = 1.0;
+let sliderOffset  = 0;
+const CARD_WIDTH  = 216;
+
+// ── Tone.js Audio Objects ────────────────────────────────
+let player   = null;   // Tone.Player
+let gainNode = null;   // Tone.Gain
+
+// ── Zuverlässige Zeitberechnung ──────────────────────────
+// Statt Tone.now() zu berechnen nutzen wir den echten
+// AudioContext der unter Tone.js liegt — dieser gibt uns
+// currentTime in Echtzeit ohne Drift.
+let _audioStartTime   = 0;   // AudioContext.currentTime beim Start/Seek
+let _audioStartOffset = 0;   // Song-Position in Sekunden beim Start/Seek
+let _songDuration     = 0;   // Gesamtlänge des aktuellen Songs
+
+// ── Progress / Loop State ────────────────────────────────
+let loopA         = null;
+let loopB         = null;
+let loopActive    = false;
+let isSeeking     = false;
+let progressRafId = null;
 
 // ════════════════════════════════════════════════════════
 //  BOOT
 // ════════════════════════════════════════════════════════
 loadSongs();
+initProgressBarEvents();
 
 // ════════════════════════════════════════════════════════
 //  DATA
 // ════════════════════════════════════════════════════════
 async function loadSongs() {
-  try {
-    const response = await fetch('.././mainScripts/loadSongJSON.php');
-    if (!response.ok) throw new Error('HTTP ' + response.status);
-    songs = await response.json();
-    console.log('[MusicMixer] Loaded', songs.length, 'songs');
-  } catch (err) {
-    console.error('[MusicMixer] loadSongs failed:', err);
-  }
+    try {
+        const response = await fetch('.././mainScripts/loadSongJSON.php');
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        songs = await response.json();
+        console.log('[MusicMixer] Loaded', songs.length, 'songs');
+    } catch (err) {
+        console.error('[MusicMixer] loadSongs failed:', err);
+    }
+}
+
+// ════════════════════════════════════════════════════════
+//  CURRENT TIME  — einzige, zuverlässige Implementierung
+//
+//  Formel:
+//    currentTime = startOffset + (audioCtx.currentTime - audioStartTime) * rate
+//
+//  Beide Variablen werden bei jedem Start/Seek neu gesetzt,
+//  dadurch ist die Berechnung immer korrekt — egal ob
+//  Rate sich ändert oder mehrfach geseekt wird.
+// ════════════════════════════════════════════════════════
+function getCurrentTime() {
+    if (!isPlaying || !Tone.getContext()) return _audioStartOffset;
+    const ctx     = Tone.getContext().rawContext;
+    const elapsed = (ctx.currentTime - _audioStartTime) * currentRate;
+    return Math.min(_audioStartOffset + elapsed, _songDuration);
+}
+
+// ════════════════════════════════════════════════════════
+//  TONE.JS SETUP
+// ════════════════════════════════════════════════════════
+async function setupTonePlayer(url) {
+    if (player) {
+        try { player.stop(); } catch (_) {}
+        player.disconnect();
+        player.dispose();
+        player = null;
+    }
+    if (gainNode) {
+        gainNode.disconnect();
+        gainNode.dispose();
+        gainNode = null;
+    }
+
+    await Tone.start();
+    gainNode = new Tone.Gain(currentVolume).toDestination();
+
+    return new Promise((resolve, reject) => {
+        player = new Tone.Player({
+            url,
+            onload: () => {
+                _songDuration        = player.buffer.duration;
+                player.playbackRate  = currentRate;
+                player.connect(gainNode);
+                setProgressUI(0, _songDuration);
+                resolve();
+            },
+            onerror: (err) => {
+                console.error('[MusicMixer] Tone.Player load error:', err);
+                reject(err);
+            }
+        });
+    });
 }
 
 // ════════════════════════════════════════════════════════
 //  SONG SELECTION
 // ════════════════════════════════════════════════════════
-function selectSong(index) {
-  stopSong();
-  clearLoop();                          
-  currentIndex = index;
-  const song = songs[index];
-  if (!song) return;
+async function selectSong(index) {
+    stopSong();
+    clearLoop();
 
-  currentTrack              = new Audio(song.path);
-  currentTrack.volume       = currentVolume;
-  currentTrack.playbackRate = currentRate;
-  currentTrack.addEventListener('ended', onTrackEnded);
-  currentTrack.addEventListener('timeupdate', updateProgressUI);    
-  currentTrack.addEventListener('loadedmetadata', onTrackLoaded);     
+    currentIndex = index;
+    const song   = songs[index];
+    if (!song) return;
 
-  playSong();
-  updateNowPlaying(song);
-  highlightCard(index);
-}
-
-function onTrackEnded() {
-  isPlaying = false;
-  updatePlayStopIcon();
-  document.getElementById('npAnimIcon')?.classList.remove('playing');
-  document.getElementById('recordWrapper')?.classList.remove('spinning');
-  highlightCard(null);
+    try {
+        await setupTonePlayer(song.path);
+        playSong();
+        updateNowPlaying(song);
+        highlightCard(index);
+    } catch (err) {
+        console.error('[MusicMixer] selectSong failed:', err);
+    }
 }
 
 // ════════════════════════════════════════════════════════
 //  PLAYBACK
 // ════════════════════════════════════════════════════════
 function playSong() {
-  if (!currentTrack) return;
-  currentTrack.play().catch(e => console.warn('[MusicMixer] play():', e));
-  isPlaying = true;
-  updatePlayStopIcon();
-  document.getElementById('npAnimIcon')?.classList.add('playing');
-  document.getElementById('recordWrapper')?.classList.add('spinning');
+    if (!player || player.state === 'started') return;
+
+    // AudioContext-Startzeit und Song-Offset merken
+    const ctx          = Tone.getContext().rawContext;
+    _audioStartTime    = ctx.currentTime;
+    _audioStartOffset  = _audioStartOffset || 0;   // gesetzt durch seekTo oder 0
+
+    player.start(Tone.now(), _audioStartOffset);
+    isPlaying = true;
+
+    updatePlayStopIcon();
+    document.getElementById('npAnimIcon')?.classList.add('playing');
+    document.getElementById('recordWrapper')?.classList.add('spinning');
+    highlightCard(currentIndex);
+
+    startProgressLoop();
+    scheduleEndedTimeout();
 }
 
 function stopSong() {
-  if (currentTrack) {
-    currentTrack.pause();
-    currentTrack.currentTime = 0;
-  }
-  isPlaying = false;
-  updatePlayStopIcon();
-  document.getElementById('npAnimIcon')?.classList.remove('playing');
-  document.getElementById('recordWrapper')?.classList.remove('spinning');
-  updateProgressUI();   // ← NEU
+    clearTimeout(window._endedTimeout);
+    stopProgressLoop();
+
+    // Aktuelle Position merken damit Resume möglich wäre
+    _audioStartOffset = getCurrentTime();
+
+    if (player && player.state === 'started') {
+        try { player.stop(); } catch (_) {}
+    }
+
+    isPlaying = false;
+    updatePlayStopIcon();
+    document.getElementById('npAnimIcon')?.classList.remove('playing');
+    document.getElementById('recordWrapper')?.classList.remove('spinning');
+    highlightCard(null);
+
+    // Progress auf 0 zurücksetzen und Offset auch
+    _audioStartOffset = 0;
+    setProgressUI(0, _songDuration);
 }
 
 function togglePlayStop() {
-  if (!currentTrack && currentIndex === null) {
-    playRndSong();
-    return;
-  }
-  isPlaying ? stopSong() : playSong();
+    if (!player && currentIndex === null) { playRndSong(); return; }
+    if (!player) return;
+    isPlaying ? stopSong() : playSong();
 }
 
-function rndSongNum() {
-  return Math.floor(Math.random() * songs.length);
+function onTrackEnded() {
+    stopProgressLoop();
+    isPlaying         = false;
+    _audioStartOffset = 0;
+    updatePlayStopIcon();
+    document.getElementById('npAnimIcon')?.classList.remove('playing');
+    document.getElementById('recordWrapper')?.classList.remove('spinning');
+    highlightCard(null);
+    setProgressUI(0, _songDuration);
 }
 
 function playRndSong() {
-  if (!songs.length) return;
-  selectSong(rndSongNum());
+    if (!songs.length) return;
+    selectSong(Math.floor(Math.random() * songs.length));
+}
+
+// ════════════════════════════════════════════════════════
+//  ENDED TIMEOUT
+//  Tone.Player hat kein 'ended'-Event, daher Timeout.
+//  Wird bei Rate-Änderung und Seek neu berechnet.
+// ════════════════════════════════════════════════════════
+function scheduleEndedTimeout() {
+    clearTimeout(window._endedTimeout);
+    if (!_songDuration) return;
+    const remaining = (_songDuration - getCurrentTime()) / currentRate;
+    window._endedTimeout = setTimeout(() => {
+        if (isPlaying) onTrackEnded();
+    }, remaining * 1000 + 300);
+}
+
+// ════════════════════════════════════════════════════════
+//  VOLUME
+// ════════════════════════════════════════════════════════
+function setVolume(value) {
+    currentVolume = Math.max(0, Math.min(1, value));
+    if (gainNode) gainNode.gain.rampTo(currentVolume, 0.02);
+}
+
+// ════════════════════════════════════════════════════════
+//  SPEED
+//  Nach Rate-Änderung: AudioContext-Clock neu kalibrieren
+//  damit getCurrentTime() weiterhin korrekt rechnet.
+// ════════════════════════════════════════════════════════
+function setSpeed(value) {
+    if (!isPlaying) {
+        currentRate = Math.max(0.25, Math.min(2.0, value));
+        if (player) player.playbackRate = currentRate;
+        return;
+    }
+
+    // Aktuelle Position VOR der Rate-Änderung sichern
+    const currentPos    = getCurrentTime();
+    currentRate         = Math.max(0.25, Math.min(2.0, value));
+
+    // Clock neu kalibrieren: neuer Startpunkt = jetzt, Offset = aktuelle Position
+    const ctx           = Tone.getContext().rawContext;
+    _audioStartTime     = ctx.currentTime;
+    _audioStartOffset   = currentPos;
+
+    if (player) player.playbackRate = currentRate;
+
+    // Ended-Timeout mit neuer Rate neu planen
+    scheduleEndedTimeout();
+}
+
+// ════════════════════════════════════════════════════════
+//  SEEK
+// ════════════════════════════════════════════════════════
+function seekTo(time) {
+    time = Math.max(0, Math.min(_songDuration || 0, time));
+
+    if (player && player.state === 'started') {
+        try { player.stop(); } catch (_) {}
+    }
+
+    // Offset für playSong setzen
+    _audioStartOffset = time;
+
+    if (isPlaying) {
+        // Neu starten an neuer Position
+        const ctx       = Tone.getContext().rawContext;
+        _audioStartTime = ctx.currentTime;
+        player.start(Tone.now(), time);
+        scheduleEndedTimeout();
+    }
+
+    setProgressUI(time, _songDuration);
+}
+
+function seekBy(seconds) {
+    seekTo(getCurrentTime() + seconds);
+}
+
+function seekToPosition(clientX) {
+    if (!_songDuration) return;
+    const bar  = document.getElementById('progressBar');
+    const rect = bar.getBoundingClientRect();
+    let pct    = (clientX - rect.left) / rect.width;
+    pct        = Math.max(0, Math.min(1, pct));
+    seekTo(pct * _songDuration);
+}
+
+// ════════════════════════════════════════════════════════
+//  PROGRESS LOOP  (rAF — läuft ~60fps)
+// ════════════════════════════════════════════════════════
+function startProgressLoop() {
+    stopProgressLoop();
+    function tick() {
+        if (!isPlaying) return;
+        const cur = getCurrentTime();
+        setProgressUI(cur, _songDuration);
+
+        // Loop A/B check
+        if (loopActive && loopB !== null && cur >= loopB) {
+            seekTo(loopA !== null ? loopA : 0);
+        }
+
+        progressRafId = requestAnimationFrame(tick);
+    }
+    progressRafId = requestAnimationFrame(tick);
+}
+
+function stopProgressLoop() {
+    if (progressRafId) {
+        cancelAnimationFrame(progressRafId);
+        progressRafId = null;
+    }
+}
+
+// ════════════════════════════════════════════════════════
+//  PROGRESS UI
+// ════════════════════════════════════════════════════════
+function formatTime(seconds) {
+    if (!isFinite(seconds) || seconds < 0) seconds = 0;
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function setProgressUI(cur, dur) {
+    if (isSeeking) return;
+    const pct  = dur > 0 ? Math.min((cur / dur) * 100, 100) : 0;
+    const fill  = document.getElementById('progressFill');
+    const knob  = document.getElementById('progressKnob');
+    const tCur  = document.getElementById('timeCurrent');
+    const tDur  = document.getElementById('timeDuration');
+
+    if (fill) fill.style.width  = pct + '%';
+    if (knob) knob.style.left   = pct + '%';
+    if (tCur) tCur.textContent  = formatTime(cur);
+    if (tDur) tDur.textContent  = formatTime(dur);
+}
+
+function initProgressBarEvents() {
+    const wrapper = document.getElementById('progressBarWrapper');
+    if (!wrapper) return;
+
+    wrapper.addEventListener('mousedown', e => { isSeeking = true; seekToPosition(e.clientX); });
+    window.addEventListener('mousemove',  e => { if (isSeeking) seekToPosition(e.clientX); });
+    window.addEventListener('mouseup',    ()  => { isSeeking = false; });
+
+    wrapper.addEventListener('touchstart', e => { isSeeking = true; seekToPosition(e.touches[0].clientX); }, { passive: true });
+    window.addEventListener('touchmove',   e => { if (isSeeking) seekToPosition(e.touches[0].clientX); },   { passive: true });
+    window.addEventListener('touchend',    ()  => { isSeeking = false; });
+}
+
+// ════════════════════════════════════════════════════════
+//  LOOP STATION
+// ════════════════════════════════════════════════════════
+function setLoopPoint(point) {
+    if (!_songDuration) return;
+    const time = getCurrentTime();
+    const pct  = (time / _songDuration) * 100;
+
+    if (point === 'A') {
+        loopA = time;
+        document.getElementById('btnLoopA')?.classList.add('set');
+        const mA = document.getElementById('loopMarkerA');
+        if (mA) { mA.style.left = pct + '%'; mA.classList.add('active'); }
+    } else {
+        loopB = time;
+        document.getElementById('btnLoopB')?.classList.add('set');
+        const mB = document.getElementById('loopMarkerB');
+        if (mB) { mB.style.left = pct + '%'; mB.classList.add('active'); }
+    }
+
+    if (loopA !== null && loopB !== null && loopA > loopB) {
+        [loopA, loopB] = [loopB, loopA];
+        redrawLoopMarkers();
+    }
+
+    updateLoopRegion();
+}
+
+function redrawLoopMarkers() {
+    if (!_songDuration) return;
+    const mA = document.getElementById('loopMarkerA');
+    const mB = document.getElementById('loopMarkerB');
+    if (loopA !== null && mA) mA.style.left = ((loopA / _songDuration) * 100) + '%';
+    if (loopB !== null && mB) mB.style.left = ((loopB / _songDuration) * 100) + '%';
+    updateLoopRegion();
+}
+
+function updateLoopRegion() {
+    const region = document.getElementById('loopRegion');
+    if (!region || !_songDuration) return;
+    if (loopA !== null && loopB !== null) {
+        region.style.left  = ((loopA / _songDuration) * 100) + '%';
+        region.style.width = (((loopB - loopA) / _songDuration) * 100) + '%';
+        region.classList.add('active');
+    } else {
+        region.classList.remove('active');
+    }
+}
+
+function toggleLoop() {
+    if (loopA === null || loopB === null) return;
+    loopActive = !loopActive;
+    document.getElementById('btnLoopToggle')?.classList.toggle('active', loopActive);
+}
+
+function clearLoop() {
+    loopA = null; loopB = null; loopActive = false;
+    ['btnLoopA','btnLoopB','btnLoopToggle'].forEach(id =>
+        document.getElementById(id)?.classList.remove('set','active')
+    );
+    ['loopMarkerA','loopMarkerB','loopRegion'].forEach(id =>
+        document.getElementById(id)?.classList.remove('active')
+    );
 }
 
 // ════════════════════════════════════════════════════════
 //  UI HELPERS
 // ════════════════════════════════════════════════════════
 function updatePlayStopIcon() {
-  const p = document.getElementById('iconPlay');
-  const s = document.getElementById('iconStop');
-  if (!p || !s) return;
-  p.style.display = isPlaying ? 'none'  : 'block';
-  s.style.display = isPlaying ? 'block' : 'none';
+    const p = document.getElementById('iconPlay');
+    const s = document.getElementById('iconStop');
+    if (!p || !s) return;
+    p.style.display = isPlaying ? 'none'  : 'block';
+    s.style.display = isPlaying ? 'block' : 'none';
 }
 
 function updateNowPlaying(song) {
-  const t = document.getElementById('npTitle');
-  const a = document.getElementById('npArtist');
-  if (t) t.textContent = song.title  || 'Unknown Title';
-  if (a) a.textContent = song.artist || '—';
+    const t = document.getElementById('npTitle');
+    const a = document.getElementById('npArtist');
+    if (t) t.textContent = song.title  || 'Unknown Title';
+    if (a) a.textContent = song.artist || '—';
 }
 
 function highlightCard(activeIndex) {
-  document.querySelectorAll('.songCard').forEach((c, i) =>
-    c.classList.toggle('active', i === activeIndex)
-  );
+    document.querySelectorAll('.songCard').forEach((c, i) =>
+        c.classList.toggle('active', i === activeIndex)
+    );
 }
 
 // ════════════════════════════════════════════════════════
 //  SLIDER NAVIGATION
 // ════════════════════════════════════════════════════════
 function slideRight() {
-  const slider   = document.getElementById('songSlider');
-  const maxScroll = slider.scrollWidth - slider.clientWidth;
-  sliderOffset   = Math.min(sliderOffset + CARD_WIDTH, maxScroll);
-  slider.scrollTo({ left: sliderOffset, behavior: 'smooth' });
+    const slider    = document.getElementById('songSlider');
+    const maxScroll = slider.scrollWidth - slider.clientWidth;
+    sliderOffset    = Math.min(sliderOffset + CARD_WIDTH, maxScroll);
+    slider.scrollTo({ left: sliderOffset, behavior: 'smooth' });
 }
 
 function slideLeft() {
-  sliderOffset = Math.max(sliderOffset - CARD_WIDTH, 0);
-  document.getElementById('songSlider')
-    .scrollTo({ left: sliderOffset, behavior: 'smooth' });
+    sliderOffset = Math.max(sliderOffset - CARD_WIDTH, 0);
+    document.getElementById('songSlider')
+        .scrollTo({ left: sliderOffset, behavior: 'smooth' });
 }
 
 // ════════════════════════════════════════════════════════
-//  GENERIC FADER FACTORY
-//  Handles both Volume and Speed fader with the same logic.
+//  FADER FACTORY
 // ════════════════════════════════════════════════════════
-function createFader({ trackId, knobId, fillId, outputId, min, max, startCenter, format, onChange }) {
-  const track  = document.getElementById(trackId);
-  const knob   = document.getElementById(knobId);
-  const fill   = fillId  ? document.getElementById(fillId)  : null;
-  const output = outputId ? document.getElementById(outputId) : null;
-  if (!track || !knob) return;
+function createFader({ trackId, knobId, fillId, outputId, min, max, initValue, format, onChange }) {
+    const track  = document.getElementById(trackId);
+    const knob   = document.getElementById(knobId);
+    const fill   = fillId   ? document.getElementById(fillId)   : null;
+    const output = outputId ? document.getElementById(outputId) : null;
+    if (!track || !knob) return;
 
-  let isDragging = false;
+    let isDragging = false;
 
-  function getTrackHeight() {
-    return track.getBoundingClientRect().height;
-  }
+    function getTrackHeight() { return track.getBoundingClientRect().height; }
 
-  function valueToRelY(value) {
-    const h   = getTrackHeight();
-    const pct = 1 - ((value - min) / (max - min));   // invert: top = max
-    return pct * h;
-  }
-
-  function relYToValue(clientY) {
-    const rect = track.getBoundingClientRect();
-    let   rel  = clientY - rect.top;
-    rel = Math.max(0, Math.min(rect.height, rel));
-    return max - (rel / rect.height) * (max - min);
-  }
-
-  function applyValue(value) {
-    value = Math.max(min, Math.min(max, value));
-    const y = valueToRelY(value);
-
-    knob.style.top = `${y}px`;
-
-    if (fill) {
-      const pct = (value - min) / (max - min);
-      fill.style.height = `${pct * 100}%`;
+    function valueToRelY(value) {
+        const pct = 1 - ((value - min) / (max - min));
+        return pct * getTrackHeight();
     }
 
-    if (output) output.textContent = format(value);
-    onChange(value);
-  }
+    function relYToValue(clientY) {
+        const rect = track.getBoundingClientRect();
+        let rel    = Math.max(0, Math.min(rect.height, clientY - rect.top));
+        return max - (rel / rect.height) * (max - min);
+    }
 
-  function onMove(clientY) {
-    applyValue(relYToValue(clientY));
-  }
+    function applyValue(value) {
+        value = Math.max(min, Math.min(max, value));
+        knob.style.top = `${valueToRelY(value)}px`;
+        if (fill)   fill.style.height   = `${((value - min) / (max - min)) * 100}%`;
+        if (output) output.textContent  = format(value);
+        onChange(value);
+    }
 
-  // Mouse
-  knob.addEventListener('mousedown',   e => { isDragging = true; e.preventDefault(); });
-  track.addEventListener('mousedown',  e => { isDragging = true; onMove(e.clientY); });
-  window.addEventListener('mousemove', e => { if (isDragging) onMove(e.clientY); });
-  window.addEventListener('mouseup',   ()  => { isDragging = false; });
+    function onMove(clientY) { applyValue(relYToValue(clientY)); }
 
-  // Touch
-  knob.addEventListener('touchstart',   e => { isDragging = true; e.preventDefault(); }, { passive: false });
-  window.addEventListener('touchmove',  e => { if (isDragging) onMove(e.touches[0].clientY); }, { passive: true });
-  window.addEventListener('touchend',   ()  => { isDragging = false; });
+    knob.addEventListener('mousedown',   e => { isDragging = true; e.preventDefault(); });
+    track.addEventListener('mousedown',  e => { isDragging = true; onMove(e.clientY); });
+    window.addEventListener('mousemove', e => { if (isDragging) onMove(e.clientY); });
+    window.addEventListener('mouseup',   ()  => { isDragging = false; });
 
-  // Set initial position once the DOM is fully painted
-  window.addEventListener('load', () => {
-    const initVal = startCenter ? (min + max) / 2 : max;
-    applyValue(initVal);
-  });
+    knob.addEventListener('touchstart',  e => { isDragging = true; e.preventDefault(); }, { passive: false });
+    window.addEventListener('touchmove', e => { if (isDragging) onMove(e.touches[0].clientY); }, { passive: true });
+    window.addEventListener('touchend',  ()  => { isDragging = false; });
+
+    window.addEventListener('load', () => {
+        requestAnimationFrame(() => requestAnimationFrame(() => applyValue(initValue)));
+    });
 }
 
 // ════════════════════════════════════════════════════════
-//  VOLUME FADER   (0.0 → 1.0,  starts at top = 1.0)
-//  IDs müssen mit dem HTML übereinstimmen:
-//    fader-track / fader-knob / vol-fill / volume-output
+//  VOLUME FADER
 // ════════════════════════════════════════════════════════
 createFader({
-  trackId:     'fader-track',
-  knobId:      'fader-knob',
-  fillId:      'vol-fill',
-  outputId:    'volume-output',
-  min:         0,
-  max:         1,
-  startCenter: false,               // startet oben (volle Lautstärke)
-  format:      v => v.toFixed(2),
-  onChange:    v => {
-    currentVolume = v;
-    if (currentTrack) currentTrack.volume = v;
-  }
+    trackId:   'fader-track',
+    knobId:    'fader-knob',
+    fillId:    'vol-fill',
+    outputId:  'volume-output',
+    min:       0,
+    max:       1,
+    initValue: 1.0,
+    format:    v => v.toFixed(2),
+    onChange:  v => setVolume(v)
 });
 
 // ════════════════════════════════════════════════════════
-//  SPEED FADER   (0.25× → 2.0×, startet in der Mitte = 1.0×)
-//  IDs: spd-track / spd-knob / spd-fill / spd-output
+//  SPEED FADER  — startet bei exakt 1.00×
 // ════════════════════════════════════════════════════════
 createFader({
-  trackId:     'spd-track',
-  knobId:      'spd-knob',
-  fillId:      'spd-fill',
-  outputId:    'spd-output',
-  min:         0.25,
-  max:         2.0,
-  startCenter: true,               // Knopf startet in der Mitte (= 1.0×)
-  format:      v => v.toFixed(2) + '×',
-  onChange:    v => {
-    currentRate = v;
-    if (currentTrack) currentTrack.playbackRate = v;
-  }
+    trackId:   'spd-track',
+    knobId:    'spd-knob',
+    fillId:    'spd-fill',
+    outputId:  'spd-output',
+    min:       0.25,
+    max:       2.0,
+    initValue: 1.0,
+    format:    v => v.toFixed(2) + '×',
+    onChange:  v => setSpeed(v)
 });
-
-// ════════════════════════════════════════════════════════
-//  PROGRESS / SEEK STATE
-// ════════════════════════════════════════════════════════
-let loopA = null;   // in Sekunden
-let loopB = null;
-let loopActive = false;
-let isSeeking = false;
-
-// ════════════════════════════════════════════════════════
-//  TIME FORMAT HELPER
-// ════════════════════════════════════════════════════════
-function formatTime(seconds) {
-  if (!isFinite(seconds) || seconds < 0) seconds = 0;
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return `${m}:${s.toString().padStart(2, '0')}`;
-}
-
-// ════════════════════════════════════════════════════════
-//  PROGRESS BAR UPDATE (called on timeupdate)
-// ════════════════════════════════════════════════════════
-function updateProgressUI() {
-  if (!currentTrack || isSeeking) return;
-
-  const cur = currentTrack.currentTime;
-  const dur = currentTrack.duration || 0;
-  const pct = dur > 0 ? (cur / dur) * 100 : 0;
-
-  const fill = document.getElementById('progressFill');
-  const knob = document.getElementById('progressKnob');
-  const tCur = document.getElementById('timeCurrent');
-  const tDur = document.getElementById('timeDuration');
-
-  if (fill) fill.style.width = pct + '%';
-  if (knob) knob.style.left = pct + '%';
-  if (tCur) tCur.textContent = formatTime(cur);
-  if (tDur) tDur.textContent = formatTime(dur);
-
-  // Loop-Station: zurückspringen wenn Loop B erreicht
-  if (loopActive && loopB !== null && cur >= loopB) {
-    currentTrack.currentTime = loopA !== null ? loopA : 0;
-  }
-}
-
-function onTrackLoaded() {
-  const tDur = document.getElementById('timeDuration');
-  if (tDur) tDur.textContent = formatTime(currentTrack.duration);
-}
-
-// ════════════════════════════════════════════════════════
-//  SEEK BY CLICKING THE PROGRESS BAR
-// ════════════════════════════════════════════════════════
-function seekToPosition(clientX) {
-  if (!currentTrack || !currentTrack.duration) return;
-
-  const bar  = document.getElementById('progressBar');
-  const rect = bar.getBoundingClientRect();
-  let pct = (clientX - rect.left) / rect.width;
-  pct = Math.max(0, Math.min(1, pct));
-
-  currentTrack.currentTime = pct * currentTrack.duration;
-  updateProgressUI();
-}
-
-function initProgressBarEvents() {
-  const wrapper = document.getElementById('progressBarWrapper');
-  if (!wrapper) return;
-
-  wrapper.addEventListener('mousedown', e => {
-    isSeeking = true;
-    seekToPosition(e.clientX);
-  });
-  window.addEventListener('mousemove', e => {
-    if (isSeeking) seekToPosition(e.clientX);
-  });
-  window.addEventListener('mouseup', () => { isSeeking = false; });
-
-  // Touch
-  wrapper.addEventListener('touchstart', e => {
-    isSeeking = true;
-    seekToPosition(e.touches[0].clientX);
-  }, { passive: true });
-  window.addEventListener('touchmove', e => {
-    if (isSeeking) seekToPosition(e.touches[0].clientX);
-  }, { passive: true });
-  window.addEventListener('touchend', () => { isSeeking = false; });
-}
-
-// ════════════════════════════════════════════════════════
-//  TRANSPORT: REWIND / FORWARD
-// ════════════════════════════════════════════════════════
-function seekBy(seconds) {
-  if (!currentTrack) return;
-  const newTime = currentTrack.currentTime + seconds;
-  currentTrack.currentTime = Math.max(0, Math.min(currentTrack.duration || 0, newTime));
-  updateProgressUI();
-}
-
-// ════════════════════════════════════════════════════════
-//  LOOP STATION  (A/B Marker)
-// ════════════════════════════════════════════════════════
-function setLoopPoint(point) {
-  if (!currentTrack || !currentTrack.duration) return;
-
-  const time = currentTrack.currentTime;
-  const dur  = currentTrack.duration;
-  const pct  = (time / dur) * 100;
-
-  if (point === 'A') {
-    loopA = time;
-    document.getElementById('btnLoopA')?.classList.add('set');
-    const markerA = document.getElementById('loopMarkerA');
-    if (markerA) {
-      markerA.style.left = pct + '%';
-      markerA.classList.add('active');
-    }
-  } else {
-    loopB = time;
-    document.getElementById('btnLoopB')?.classList.add('set');
-    const markerB = document.getElementById('loopMarkerB');
-    if (markerB) {
-      markerB.style.left = pct + '%';
-      markerB.classList.add('active');
-    }
-  }
-
-  updateLoopRegion();
-
-  // Falls beide Punkte gesetzt sind: Reihenfolge sicherstellen
-  if (loopA !== null && loopB !== null && loopA > loopB) {
-    [loopA, loopB] = [loopB, loopA];
-    // Marker neu zeichnen mit korrekten Werten
-    redrawLoopMarkers();
-  }
-}
-
-function redrawLoopMarkers() {
-  if (!currentTrack || !currentTrack.duration) return;
-  const dur = currentTrack.duration;
-
-  const markerA = document.getElementById('loopMarkerA');
-  const markerB = document.getElementById('loopMarkerB');
-
-  if (loopA !== null && markerA) {
-    markerA.style.left = ((loopA / dur) * 100) + '%';
-  }
-  if (loopB !== null && markerB) {
-    markerB.style.left = ((loopB / dur) * 100) + '%';
-  }
-  updateLoopRegion();
-}
-
-function updateLoopRegion() {
-  const region = document.getElementById('loopRegion');
-  if (!region || !currentTrack || !currentTrack.duration) return;
-
-  if (loopA !== null && loopB !== null) {
-    const dur = currentTrack.duration;
-    const left  = (loopA / dur) * 100;
-    const width = ((loopB - loopA) / dur) * 100;
-    region.style.left  = left + '%';
-    region.style.width = width + '%';
-    region.classList.add('active');
-  } else {
-    region.classList.remove('active');
-  }
-}
-
-function toggleLoop() {
-  if (loopA === null || loopB === null) return; // Beide Punkte nötig
-  loopActive = !loopActive;
-  document.getElementById('btnLoopToggle')?.classList.toggle('active', loopActive);
-}
-
-function clearLoop() {
-  loopA = null;
-  loopB = null;
-  loopActive = false;
-
-  document.getElementById('btnLoopA')?.classList.remove('set');
-  document.getElementById('btnLoopB')?.classList.remove('set');
-  document.getElementById('btnLoopToggle')?.classList.remove('active');
-  document.getElementById('loopMarkerA')?.classList.remove('active');
-  document.getElementById('loopMarkerB')?.classList.remove('active');
-  document.getElementById('loopRegion')?.classList.remove('active');
-}
-
-// ════════════════════════════════════════════════════════
-//  INIT (am Ende der Datei aufrufen)
-// ════════════════════════════════════════════════════════
-initProgressBarEvents();

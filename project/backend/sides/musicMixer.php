@@ -2,6 +2,8 @@
 //require "../mainScripts/musicMixerMain.php";
 require "../database.php";
 
+
+
 $songs = [];
 
 function loadSongs()
@@ -26,6 +28,7 @@ function loadSongs()
     <title>Music Mixer</title>
 
     <link rel="stylesheet" href="../css/musicMixerStyle.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <script src="../js/musicMixerScript.js" defer></script>
 </head>
 
@@ -35,24 +38,6 @@ function loadSongs()
             <a href="../../frontend/index.html">
                 <div class="navItem">
                     <img src="../../frontend/img/startpage/logoWhite.png" alt="whiteLogo">
-                </div>
-            </a>
-
-            <a href="">
-                <div class="navItem">
-                    <p>Music Mixer</p>
-                </div>
-            </a>
-
-            <a href="">
-                <div class="navItem">
-                    <p>Placeholder</p>
-                </div>
-            </a>
-
-            <a href="">
-                <div class="navItem">
-                    <p>Placeholder</p>
                 </div>
             </a>
 

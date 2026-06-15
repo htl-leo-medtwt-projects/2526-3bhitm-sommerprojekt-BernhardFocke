@@ -1,114 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spinning Records</title>
-<link rel="stylesheet" href="./css/mainStyle.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinning Records</title>
+    <link rel="stylesheet" href="./css/mainStyle.css">
 </head>
+
 <body>
-<nav>
-    <div id="navBar">
-        <div class="navItem" id="logoItem">
-            <img src="./img/startpage/logoWhite.png" alt="whiteLogo">
-        </div>
-        <div class="navItem">
-            <p>Music Mixer</p>
-        </div>
-        <div class="navItem">
-            <p>Placeholder</p>
-        </div>
-        <div class="navItem">
-            <p>Placeholder</p>
-        </div>
-        <a href="../backend/sides/login.php">
-            <div class="navItem" id="login">
-                <p>Login</p>
+    <nav>
+        <div id="navBar">
+            <div class="navItem" id="logoItem">
+                <img src="./img/startpage/logoWhite.png" alt="whiteLogo">
             </div>
-        </a>
-    </div>
-</nav>
+            
+            <a href="../backend/sides/musicMixer.php">
+                <div class="navItem">
+                    <p>Music Mixer</p>
+                </div>
+            </a>
 
-<div id="hero">
-    <div id="grooves" aria-hidden="true">
-        <span class="groove"></span>
-        <span class="groove"></span>
-        <span class="groove"></span>
-        <span class="groove"></span>
-        <span class="groove"></span>
-        <span class="groove"></span>
-        <div id="label">
-            <span id="labelRing"></span>
-            <span id="labelHole"></span>
+            <a href="../backend/sides/login.php">
+                <div class="navItem" id="login">
+                    <p>Login</p>
+                </div>
+            </a>
         </div>
-    </div>
+    </nav>
 
-    <div id="headline">
-        <span class="eyebrow">NOW SPINNING</span>
-        <h1>SPINNING<br>RECORDS</h1>
-        <h3>Your tracks. Your tempo. Your mix.</h3>
-    </div>
-
-    <div id="buttonBox">
-        <a href="../backend/sides/login.php">
-            <div id="button">
-                <p>Drop the needle</p>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 12H20M20 12L14 6M20 12L14 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-            </div>
-        </a>
-    </div>
-</div>
-
-<div id="featureSection">
-    <div id="featureHeader">
-        <span class="eyebrow">ON THE DECK</span>
-        <h2>Built for the way you actually listen</h2>
-    </div>
-
-    <div id="featureGrid">
-        <div class="featureItem item-mix">
-            <div class="itemGlow" aria-hidden="true"></div>
-            <div class="featureTag">MIX</div>
-            <p class="featureTitle">Shuffle your crate</p>
-            <p class="featureDesc">One tap and the deck pulls a new track from your library — no playlist required, no skipping required.</p>
-            <div class="shuffleIcon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04z" fill="currentColor"/>
-                </svg>
+    <div id="hero">
+        <div id="grooves" aria-hidden="true">
+            <span class="groove"></span>
+            <span class="groove"></span>
+            <span class="groove"></span>
+            <span class="groove"></span>
+            <span class="groove"></span>
+            <span class="groove"></span>
+            <div id="label">
+                <span id="labelRing"></span>
+                <span id="labelHole"></span>
             </div>
         </div>
 
-        <div class="featureItem item-rate">
-            <div class="featureTag">RATE</div>
-            <p class="featureTitle">Bend the tempo</p>
-            <p class="featureDesc">Slow it down, speed it up, dial in 0.25× to 2×.</p>
+        <div id="headline">
+            <span class="eyebrow">NOW SPINNING</span>
+            <h1>SPINNING<br>RECORDS</h1>
+            <h3>Your tracks. Your tempo. Your mix.</h3>
         </div>
 
-        <div class="featureItem item-vol">
-            <div class="featureTag">VOL</div>
-            <p class="featureTitle">Shape every level</p>
-            <p class="featureDesc">Ride the fader live, no jumps.</p>
-            <div class="volBars" aria-hidden="true">
-                <span></span><span></span><span></span><span></span><span></span>
-            </div>
-        </div>
-
-        <div class="featureItem item-library">
-            <div class="featureTag">LIBRARY</div>
-            <p class="featureTitle">Your tracks, organized</p>
-            <p class="featureDesc">Every upload lands in your slider, ready to drop in with one click.</p>
-        </div>
-
-        <div class="featureItem item-live">
-            <div class="featureTag">LIVE</div>
-            <p class="featureTitle">Always on, always synced</p>
-            <p class="featureDesc">The now-playing bar follows every change in real time.</p>
+        <div id="buttonBox">
+            <a href="../backend/sides/login.php">
+                <div id="button">
+                    <p>Drop the needle</p>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 12H20M20 12L14 6M20 12L14 18" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+            </a>
         </div>
     </div>
-</div>
+
+    <div id="featureSection">
+        <div id="featureHeader">
+            <span class="eyebrow">ON THE DECK</span>
+            <h2>Built for the way you actually listen</h2>
+        </div>
+
+        <div id="featureGrid">
+            <div class="featureItem item-mix">
+                <div class="itemGlow" aria-hidden="true"></div>
+                <div class="featureTag">MIX</div>
+                <p class="featureTitle">Shuffle your crate</p>
+                <p class="featureDesc">One tap and the deck pulls a new track from your library — no playlist required,
+                    no skipping required.</p>
+                <div class="shuffleIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04z"
+                            fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="featureItem item-rate">
+                <div class="featureTag">RATE</div>
+                <p class="featureTitle">Bend the tempo</p>
+                <p class="featureDesc">Slow it down, speed it up, dial in 0.25× to 2×.</p>
+            </div>
+
+            <div class="featureItem item-vol">
+                <div class="featureTag">VOL</div>
+                <p class="featureTitle">Shape every level</p>
+                <p class="featureDesc">Ride the fader live, no jumps.</p>
+                <div class="volBars" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span>
+                </div>
+            </div>
+
+            <div class="featureItem item-library">
+                <div class="featureTag">LIBRARY</div>
+                <p class="featureTitle">Your tracks, organized</p>
+                <p class="featureDesc">Every upload lands in your slider, ready to drop in with one click.</p>
+            </div>
+
+            <div class="featureItem item-live">
+                <div class="featureTag">LIVE</div>
+                <p class="featureTitle">Always on, always synced</p>
+                <p class="featureDesc">The now-playing bar follows every change in real time.</p>
+            </div>
+        </div>
+    </div>
 
 </body>
+
 </html>
