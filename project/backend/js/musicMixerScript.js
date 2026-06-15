@@ -34,6 +34,7 @@ async function loadSongs() {
 // ════════════════════════════════════════════════════════
 function selectSong(index) {
   stopSong();
+  clearLoop();                          
   currentIndex = index;
   const song = songs[index];
   if (!song) return;
@@ -42,6 +43,8 @@ function selectSong(index) {
   currentTrack.volume       = currentVolume;
   currentTrack.playbackRate = currentRate;
   currentTrack.addEventListener('ended', onTrackEnded);
+  currentTrack.addEventListener('timeupdate', updateProgressUI);    
+  currentTrack.addEventListener('loadedmetadata', onTrackLoaded);     
 
   playSong();
   updateNowPlaying(song);
@@ -76,6 +79,7 @@ function stopSong() {
   updatePlayStopIcon();
   document.getElementById('npAnimIcon')?.classList.remove('playing');
   document.getElementById('recordWrapper')?.classList.remove('spinning');
+  updateProgressUI();   // ← NEU
 }
 
 function togglePlayStop() {
@@ -240,3 +244,195 @@ createFader({
     if (currentTrack) currentTrack.playbackRate = v;
   }
 });
+
+// ════════════════════════════════════════════════════════
+//  PROGRESS / SEEK STATE
+// ════════════════════════════════════════════════════════
+let loopA = null;   // in Sekunden
+let loopB = null;
+let loopActive = false;
+let isSeeking = false;
+
+// ════════════════════════════════════════════════════════
+//  TIME FORMAT HELPER
+// ════════════════════════════════════════════════════════
+function formatTime(seconds) {
+  if (!isFinite(seconds) || seconds < 0) seconds = 0;
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// ════════════════════════════════════════════════════════
+//  PROGRESS BAR UPDATE (called on timeupdate)
+// ════════════════════════════════════════════════════════
+function updateProgressUI() {
+  if (!currentTrack || isSeeking) return;
+
+  const cur = currentTrack.currentTime;
+  const dur = currentTrack.duration || 0;
+  const pct = dur > 0 ? (cur / dur) * 100 : 0;
+
+  const fill = document.getElementById('progressFill');
+  const knob = document.getElementById('progressKnob');
+  const tCur = document.getElementById('timeCurrent');
+  const tDur = document.getElementById('timeDuration');
+
+  if (fill) fill.style.width = pct + '%';
+  if (knob) knob.style.left = pct + '%';
+  if (tCur) tCur.textContent = formatTime(cur);
+  if (tDur) tDur.textContent = formatTime(dur);
+
+  // Loop-Station: zurückspringen wenn Loop B erreicht
+  if (loopActive && loopB !== null && cur >= loopB) {
+    currentTrack.currentTime = loopA !== null ? loopA : 0;
+  }
+}
+
+function onTrackLoaded() {
+  const tDur = document.getElementById('timeDuration');
+  if (tDur) tDur.textContent = formatTime(currentTrack.duration);
+}
+
+// ════════════════════════════════════════════════════════
+//  SEEK BY CLICKING THE PROGRESS BAR
+// ════════════════════════════════════════════════════════
+function seekToPosition(clientX) {
+  if (!currentTrack || !currentTrack.duration) return;
+
+  const bar  = document.getElementById('progressBar');
+  const rect = bar.getBoundingClientRect();
+  let pct = (clientX - rect.left) / rect.width;
+  pct = Math.max(0, Math.min(1, pct));
+
+  currentTrack.currentTime = pct * currentTrack.duration;
+  updateProgressUI();
+}
+
+function initProgressBarEvents() {
+  const wrapper = document.getElementById('progressBarWrapper');
+  if (!wrapper) return;
+
+  wrapper.addEventListener('mousedown', e => {
+    isSeeking = true;
+    seekToPosition(e.clientX);
+  });
+  window.addEventListener('mousemove', e => {
+    if (isSeeking) seekToPosition(e.clientX);
+  });
+  window.addEventListener('mouseup', () => { isSeeking = false; });
+
+  // Touch
+  wrapper.addEventListener('touchstart', e => {
+    isSeeking = true;
+    seekToPosition(e.touches[0].clientX);
+  }, { passive: true });
+  window.addEventListener('touchmove', e => {
+    if (isSeeking) seekToPosition(e.touches[0].clientX);
+  }, { passive: true });
+  window.addEventListener('touchend', () => { isSeeking = false; });
+}
+
+// ════════════════════════════════════════════════════════
+//  TRANSPORT: REWIND / FORWARD
+// ════════════════════════════════════════════════════════
+function seekBy(seconds) {
+  if (!currentTrack) return;
+  const newTime = currentTrack.currentTime + seconds;
+  currentTrack.currentTime = Math.max(0, Math.min(currentTrack.duration || 0, newTime));
+  updateProgressUI();
+}
+
+// ════════════════════════════════════════════════════════
+//  LOOP STATION  (A/B Marker)
+// ════════════════════════════════════════════════════════
+function setLoopPoint(point) {
+  if (!currentTrack || !currentTrack.duration) return;
+
+  const time = currentTrack.currentTime;
+  const dur  = currentTrack.duration;
+  const pct  = (time / dur) * 100;
+
+  if (point === 'A') {
+    loopA = time;
+    document.getElementById('btnLoopA')?.classList.add('set');
+    const markerA = document.getElementById('loopMarkerA');
+    if (markerA) {
+      markerA.style.left = pct + '%';
+      markerA.classList.add('active');
+    }
+  } else {
+    loopB = time;
+    document.getElementById('btnLoopB')?.classList.add('set');
+    const markerB = document.getElementById('loopMarkerB');
+    if (markerB) {
+      markerB.style.left = pct + '%';
+      markerB.classList.add('active');
+    }
+  }
+
+  updateLoopRegion();
+
+  // Falls beide Punkte gesetzt sind: Reihenfolge sicherstellen
+  if (loopA !== null && loopB !== null && loopA > loopB) {
+    [loopA, loopB] = [loopB, loopA];
+    // Marker neu zeichnen mit korrekten Werten
+    redrawLoopMarkers();
+  }
+}
+
+function redrawLoopMarkers() {
+  if (!currentTrack || !currentTrack.duration) return;
+  const dur = currentTrack.duration;
+
+  const markerA = document.getElementById('loopMarkerA');
+  const markerB = document.getElementById('loopMarkerB');
+
+  if (loopA !== null && markerA) {
+    markerA.style.left = ((loopA / dur) * 100) + '%';
+  }
+  if (loopB !== null && markerB) {
+    markerB.style.left = ((loopB / dur) * 100) + '%';
+  }
+  updateLoopRegion();
+}
+
+function updateLoopRegion() {
+  const region = document.getElementById('loopRegion');
+  if (!region || !currentTrack || !currentTrack.duration) return;
+
+  if (loopA !== null && loopB !== null) {
+    const dur = currentTrack.duration;
+    const left  = (loopA / dur) * 100;
+    const width = ((loopB - loopA) / dur) * 100;
+    region.style.left  = left + '%';
+    region.style.width = width + '%';
+    region.classList.add('active');
+  } else {
+    region.classList.remove('active');
+  }
+}
+
+function toggleLoop() {
+  if (loopA === null || loopB === null) return; // Beide Punkte nötig
+  loopActive = !loopActive;
+  document.getElementById('btnLoopToggle')?.classList.toggle('active', loopActive);
+}
+
+function clearLoop() {
+  loopA = null;
+  loopB = null;
+  loopActive = false;
+
+  document.getElementById('btnLoopA')?.classList.remove('set');
+  document.getElementById('btnLoopB')?.classList.remove('set');
+  document.getElementById('btnLoopToggle')?.classList.remove('active');
+  document.getElementById('loopMarkerA')?.classList.remove('active');
+  document.getElementById('loopMarkerB')?.classList.remove('active');
+  document.getElementById('loopRegion')?.classList.remove('active');
+}
+
+// ════════════════════════════════════════════════════════
+//  INIT (am Ende der Datei aufrufen)
+// ════════════════════════════════════════════════════════
+initProgressBarEvents();

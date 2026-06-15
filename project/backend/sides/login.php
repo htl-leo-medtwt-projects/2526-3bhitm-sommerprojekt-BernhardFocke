@@ -32,7 +32,7 @@
                 <label for="remember">Remember me</label>
             </div>
 
-            <div id="feetback">
+            <div id="o">
                 <?php
                     if(isset($_SESSION['logFeetback'])) {
                         echo $_SESSION['logFeetback'];

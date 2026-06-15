@@ -936,3 +936,250 @@ nav {
     background: var(--teal-muted);
     border-radius: 4px;
 }
+
+/* ── Now Playing Bar: layout extension ─────────────────────── */
+#nowPlayingBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.9rem;
+}
+
+#npTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ── Progress Row ───────────────────────────────────────────── */
+#progressRow {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+#timeCurrent,
+#timeDuration {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    min-width: 38px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+#progressBarWrapper {
+    flex: 1;
+    padding: 10px 0;
+    cursor: pointer;
+}
+
+#progressBar {
+    position: relative;
+    height: 4px;
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    overflow: visible;
+}
+
+#progressFill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0%;
+    background: var(--gradient-accent);
+    border-radius: 4px;
+    transition: width 0.1s linear;
+}
+
+#progressKnob {
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    width: 10px;
+    height: 10px;
+    background: var(--teal-bright);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 8px rgba(0,229,195,0.6);
+    transition: left 0.1s linear;
+    pointer-events: none;
+}
+
+/* ── Loop Region & Markers ──────────────────────────────────── */
+#loopRegion {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 0; width: 0;
+    background: rgba(29,184,255,0.18);
+    border-left: 1px solid var(--blue-electric);
+    border-right: 1px solid var(--blue-electric);
+    border-radius: 2px;
+    display: none;
+    pointer-events: none;
+}
+
+#loopRegion.active {
+    display: block;
+}
+
+.loopMarker {
+    position: absolute;
+    top: 50%;
+    width: 2px;
+    height: 16px;
+    background: var(--blue-electric);
+    border-radius: 1px;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 6px rgba(29,184,255,0.6);
+    display: none;
+    pointer-events: none;
+}
+
+.loopMarker.active {
+    display: block;
+}
+
+.loopMarker::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--blue-electric);
+}
+
+/* ── Transport + Loop Station Row ───────────────────────────── */
+#npExtra {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+#transportControls,
+#loopStation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#transportControls button,
+#loopStation button {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+}
+
+#transportControls svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--text-secondary);
+}
+
+#transportControls button:hover,
+#loopStation button:hover {
+    border-color: var(--teal-bright);
+    color: var(--teal-bright);
+    background: rgba(0,229,195,0.08);
+    box-shadow: 0 0 10px rgba(0,229,195,0.2);
+    transform: translateY(-1px);
+}
+
+#transportControls button:hover svg {
+    fill: var(--teal-bright);
+}
+
+#transportControls button:active,
+#loopStation button:active {
+    transform: scale(0.94);
+}
+
+/* Loop Station label */
+#loopLabel {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-right: 0.3rem;
+}
+
+/* A / B set buttons */
+#btnLoopA, #btnLoopB {
+    color: var(--blue-electric);
+    border-color: rgba(29,184,255,0.25);
+}
+
+#btnLoopA:hover, #btnLoopB:hover {
+    border-color: var(--blue-electric);
+    color: var(--blue-electric);
+    background: rgba(29,184,255,0.1);
+    box-shadow: 0 0 10px rgba(29,184,255,0.3);
+}
+
+#btnLoopA.set, #btnLoopB.set {
+    background: rgba(29,184,255,0.15);
+    border-color: var(--blue-electric);
+    color: var(--blue-electric);
+    box-shadow: 0 0 10px rgba(29,184,255,0.25);
+}
+
+/* Loop toggle active state */
+#btnLoopToggle.active {
+    background: rgba(0,229,195,0.15);
+    border-color: var(--teal-bright);
+    color: var(--teal-bright);
+    box-shadow: 0 0 10px rgba(0,229,195,0.3);
+}
+
+#btnLoopToggle.active svg {
+    fill: var(--teal-bright);
+}
+
+#btnLoopToggle svg,
+#btnLoopClear svg {
+    width: 15px;
+    height: 15px;
+    fill: var(--text-secondary);
+}
+
+#btnLoopToggle:hover svg,
+#btnLoopClear:hover svg {
+    fill: var(--teal-bright);
+}
+
+#btnLoopClear:hover {
+    border-color: #ff4d6d;
+    color: #ff4d6d;
+    background: rgba(255,77,109,0.08);
+    box-shadow: 0 0 10px rgba(255,77,109,0.25);
+}
+
+#btnLoopClear:hover svg {
+    fill: #ff4d6d;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+    #npExtra {
+        justify-content: center;
+    }
+}
