@@ -37,7 +37,6 @@ function deleteSong()
     $userID = $_SESSION['user']['id'];
     header('Content-Type: application/json');
 
-    // Title und Artist vor dem Löschen aus DB holen
     $pathSql = "SELECT title, artist FROM songs WHERE id = $songId AND user_id = $userID";
     $pathResult = $conn->query($pathSql);
     $songRow = $pathResult ? $pathResult->fetch_assoc() : null;
@@ -45,7 +44,6 @@ function deleteSong()
     $sql = "DELETE FROM songs WHERE id = $songId AND user_id = $userID";
     $result = $conn->query($sql);
 
-    // Datei nur löschen, wenn DB-Löschung erfolgreich war
     if ($result && $conn->affected_rows > 0 && $songRow) {
         $filename = $songRow['title'] . "_" . $songRow['artist'];
         $filePath = "../uploads/" . $filename . ".mp3";

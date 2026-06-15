@@ -1,79 +1,71 @@
 <?php
 session_start();
-
 require "../database.php";
 
-if(!isset($_FILES["fileToUpload"])){ exit;}
- 
+header('Content-Type: application/json');
+
+if (!isset($_FILES["fileToUpload"])) {
+    echo json_encode(["success" => false, "message" => "No file received."]);
+    exit;
+}
+
+if (!isset($_SESSION['login']) || $_SESSION['login'] != 1) {
+    echo json_encode(["success" => false, "message" => "Not authenticated."]);
+    exit;
+}
+
 $target_dir = "../uploads/";
 $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-$uploadOk = 1;
- 
-$imageFileType = pathinfo($target_file, PATHINFO_EXTENSION);
- 
-// $finfo = new finfo(FILEINFO_MIME_TYPE);
-// $mimeType = $finfo->file($target_file);
+$uploadOk = true;
+$imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-
-$allowedMimeTypes = [
-    'audio/mpeg',  // Standard für MP3
-    'audio/mp3',   // Alternative für MP3
-    'audio/wav',   // Standard für WAV
-    'audio/x-wav'  // Alternative für WAV
-];
-
-// if(!in_array($mimeType, $allowedMimeTypes)) {
-//     $uploadOk = 0;
-//     echo "Ungültiger Dateityp.";
-// }
- 
 // Check if file already exists
 if (file_exists($target_file)) {
-    echo "Sorry, file already exists.";
-    $uploadOk = 0;
+    echo json_encode(["success" => false, "message" => "Sorry, file already exists."]);
+    exit;
 }
- 
+
 // Check file size
 if ($_FILES["fileToUpload"]["size"] > 10000000) {
-    echo "Sorry, your file is too large.";
-    $uploadOk = 0;
+    echo json_encode(["success" => false, "message" => "Sorry, your file is too large."]);
+    exit;
 }
- 
+
 // Allow certain file formats
-if($imageFileType != "mp3" && $imageFileType != "wav" && $imageFileType != "ogg"
-&& $imageFileType != "m4a" ) {
-    echo "Sorry, only mp3, wav, ogg & m4a files are allowed.";
-    $uploadOk = 0;
+$allowedExt = ["mp3", "wav", "ogg", "m4a"];
+if (!in_array($imageFileType, $allowedExt)) {
+    echo json_encode(["success" => false, "message" => "Sorry, only mp3, wav, ogg & m4a files are allowed."]);
+    exit;
 }
 
-// Check if $uploadOk is set to 0 by an error
-if ($uploadOk == 0) {
-    echo "Sorry, your file was not uploaded.";
-// if everything is ok, try to upload file
-} else {
-    if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-        echo "The file " . basename($_FILES["fileToUpload"]["name"]) . " has been uploaded.";
- 
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
+// Try to upload file
+if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
 
-        $nameAndArtist = preg_split("/[_. ]/", $_FILES["fileToUpload"]["name"]);
-
-        $timestamp = date("Y-m-d H:i:s");
-        $userID = $_SESSION['user']['id'];
- 
-        $insertStatement = "INSERT INTO songs (title, artist, createdAt, path, user_id) VALUES ('$nameAndArtist[0]', '$nameAndArtist[1]', '$timestamp', '$target_file', $userID);";
-        if($_res = $conn->query($insertStatement)) {
-            echo "<br>mp3 $target_file has been added to the database.";
-        } else {
-            echo "<br>NO insertion into database";
-        }
- 
-        # close database
-        $conn->close();
+    if ($conn->connect_error) {
+        echo json_encode(["success" => false, "message" => "Database connection failed."]);
+        exit;
     }
-}
 
-?>
+    $nameAndArtist = preg_split("/[_. ]/", $_FILES["fileToUpload"]["name"]);
+    $title = $nameAndArtist[0] ?? "Unknown";
+    $artist = $nameAndArtist[1] ?? "Unknown";
+    $timestamp = date("Y-m-d H:i:s");
+    $userID = $_SESSION['user']['id'];
+
+    // Vorbereitete Statements gegen SQL-Injection
+    $stmt = $conn->prepare("INSERT INTO songs (title, artist, createdAt, path, user_id) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssi", $title, $artist, $timestamp, $target_file, $userID);
+
+    if ($stmt->execute()) {
+        echo json_encode(["success" => true, "message" => "File uploaded and added to the database."]);
+    } else {
+        // Datei wieder löschen, wenn DB-Insert fehlschlägt
+        unlink($target_file);
+        echo json_encode(["success" => false, "message" => "Upload failed: database insertion error."]);
+    }
+
+    $stmt->close();
+    $conn->close();
+} else {
+    echo json_encode(["success" => false, "message" => "Sorry, your file was not uploaded."]);
+}

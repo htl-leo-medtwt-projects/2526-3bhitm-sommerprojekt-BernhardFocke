@@ -635,3 +635,68 @@ body::before {
     transform: scale(0.95);
     transition-duration: 0.08s;
 }
+
+/* ── Dropzone States ─────────────────────────────────────────── */
+#dropzone.dragover {
+    background: rgba(0, 229, 195, 0.08);
+    border-color: var(--teal-bright);
+    border-style: solid;
+    transform: scale(1.03) translateY(-0.3vh);
+    box-shadow: var(--shadow-glow-teal);
+    color: var(--teal-bright);
+}
+
+#dropzone.loading::before {
+    content: '';
+    width: 2.5vh;
+    height: 2.5vh;
+    border: 0.3vh solid rgba(0,229,195,0.25);
+    border-top-color: var(--teal-bright);
+    border-radius: 50%;
+    background: none;
+    animation: dropSpin 0.8s linear infinite;
+}
+
+#dropzone.loading p {
+    color: var(--teal-bright);
+}
+
+@keyframes dropSpin {
+    to { transform: rotate(360deg); }
+}
+
+#dropzone.success {
+    border-color: var(--teal-bright);
+    border-style: solid;
+    background: rgba(0, 229, 195, 0.1);
+    box-shadow: var(--shadow-glow-teal);
+}
+
+#dropzone.success::before {
+    content: '✓';
+    background: none;
+    -webkit-text-fill-color: var(--teal-bright);
+    color: var(--teal-bright);
+}
+
+#dropzone.success p {
+    color: var(--teal-bright);
+}
+
+#dropzone.error {
+    border-color: #ff4d6d;
+    border-style: solid;
+    background: rgba(255, 77, 109, 0.08);
+    box-shadow: 0 0 2vw rgba(255, 77, 109, 0.18), 0 0.3vh 1.5vw rgba(0,0,0,0.5);
+}
+
+#dropzone.error::before {
+    content: '✕';
+    background: none;
+    -webkit-text-fill-color: #ff4d6d;
+    color: #ff4d6d;
+}
+
+#dropzone.error p {
+    color: #ff4d6d;
+}

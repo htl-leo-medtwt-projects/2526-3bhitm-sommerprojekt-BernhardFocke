@@ -56,6 +56,7 @@ function onTrackEnded() {
   updatePlayStopIcon();
   document.getElementById('npAnimIcon')?.classList.remove('playing');
   document.getElementById('recordWrapper')?.classList.remove('spinning');
+  highlightCard(null);
 }
 
 // ════════════════════════════════════════════════════════
